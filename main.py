@@ -22,11 +22,11 @@ class myDragManager():
 
     def on_drag(self, event):
         #x,y = pyautogui.position()
-        self.widget.place(x=self.root.winfo_pointerx()-self.root.winfo_rootx()-(self.widget.winfo_width()/2), y=self.root.winfo_pointery()-self.root.winfo_rooty()-(self.widget.winfo_height()))
+        self.widget.place(x=round(self.root.winfo_pointerx()-self.root.winfo_rootx()-(self.widget.winfo_width()/2), -1), y=round(self.root.winfo_pointery()-self.root.winfo_rooty()-(self.widget.winfo_height()), -1))
     
     def on_drop(self, event):
         #x,y = pyautogui.position()
-        self.widget.place(x=self.root.winfo_pointerx()-self.root.winfo_rootx()-(self.widget.winfo_width()/2), y=self.root.winfo_pointery()-self.root.winfo_rooty()-(self.widget.winfo_height()))
+        self.widget.place(x=round(self.root.winfo_pointerx()-self.root.winfo_rootx()-(self.widget.winfo_width()/2), -1), y=round(self.root.winfo_pointery()-self.root.winfo_rooty()-(self.widget.winfo_height()), -1))
 
 root = tk.Tk()
 root.title("DesksOrganiser")
@@ -34,7 +34,7 @@ root.geometry("800x500")
 root.configure()
 #pywinstyles.apply_style(root, "acrylic")
 
-deskimg = ImageTk.PhotoImage(Image.open("Assets/deskpng.png").resize((125,50)))
+deskimg = ImageTk.PhotoImage(Image.open("Assets/deskpng.png").resize((100,50)))
 
 # sideframe = tk.Frame(root, background='gray')
 # sideframe.pack(side='left', fill='y')
