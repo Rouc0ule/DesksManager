@@ -6,7 +6,10 @@ import os
 import pywinstyles
 
 def add_desk():
+    desk = tk.Label(roomframe, image = deskimg, bg='darkgray')
     desk.place(x=0, y=0)
+    deskdrag = myDragManager()
+    deskdrag.add_dragable_widget(desk)
 
 class myDragManager():
     def add_dragable_widget(self, widget):
@@ -48,13 +51,6 @@ add_desk_btn.pack(padx=5,pady=5)
 roomframe = tk.Frame(root, background='darkgray')
 roomframe.pack(side='right', expand=True, fill="both")
 
-desk = tk.Label(roomframe, image = deskimg, bg='darkgray')
-
-print(desk.winfo_height)
-
 #l = tk.Label(roomframe, text="Label").place(relx=0.5, rely=0.5)
-
-mydrag1 = myDragManager()
-mydrag1.add_dragable_widget(desk)
 
 root.mainloop()
