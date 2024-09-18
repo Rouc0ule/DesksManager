@@ -1,13 +1,13 @@
 import tkinter as tk
 
 def add_desk():
-    desk = tk.Label(plan_root, text='DESK', bg='orange', fg='white', width=10)
+    desk = tk.Label(plan_root, text='DESK', bg='orange', fg='white', width=12, height=1)
     desk.place(x=10, y=10)
     deskdrag = myDragManager()
     deskdrag.add_dragable_widget(desk)
 
 def add_student():
-    student = tk.Label(plan_root, text='STUDENT', bg='gray', fg='white', width=10)
+    student = tk.Label(plan_root, text='STUDENT', bg='gray', fg='white', width=12, height=1)
     student.place(x=10, y=10)
     studentdrag = myDragManager()
     studentdrag.add_dragable_widget(student)
