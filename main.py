@@ -1,51 +1,102 @@
 import tkinter as tk
 
-def add_desk():
-    desk = tk.Label(plan_root, text='DESK', bg='orange', fg='white', width=12, height=1)
-    desk.place(x=10, y=10)
-    deskdrag = myDragManager()
-    deskdrag.add_dragable_widget(desk)
+class DragManager:
+    def __init__(self, canvas, grid_size=20):
+        self.canvas = canvas
+        self.item = None
+        self.grid_size = grid_size
 
-def add_student():
-    student = tk.Label(plan_root, text='STUDENT', bg='gray', fg='white', width=12, height=1)
-    student.place(x=10, y=10)
-    studentdrag = myDragManager()
-    studentdrag.add_dragable_widget(student)
+    def add_draggable(self, tag):
+        self.canvas.tag_bind(tag, '<ButtonPress-1>', self.on_start)
+        self.canvas.tag_bind(tag, '<B1-Motion>', self.on_drag)
+        self.canvas.tag_bind(tag, '<ButtonRelease-1>', self.on_drop)
 
-class myDragManager():
-    def add_dragable_widget(self, widget):
-        self.widget = widget
-        self.root = widget.winfo_toplevel()
-
-        self.widget.bind("<B1-Motion>", self.on_drag)
-        self.widget.bind("<ButtonRelease>", self.on_drop)
-        self.widget.configure(cursor="hand1")
+    def on_start(self, event):
+        self.item = self.canvas.find_withtag(tk.CURRENT)[0]
+        self.start_x = event.x
+        self.start_y = event.y
+        tag = self.canvas.gettags(self.item)[0]
+        self.canvas.tag_raise(tag)  # Élever l'objet au-dessus des autres
 
     def on_drag(self, event):
-        #x,y = pyautogui.position()
-        self.widget.place(x=round(self.root.winfo_pointerx()-self.root.winfo_rootx()-(self.widget.winfo_width()/2), -1), y=round(self.root.winfo_pointery()-self.root.winfo_rooty()-(self.widget.winfo_height()), -1))
+        if not self.item:
+            return
         
+        tag = self.canvas.gettags(self.item)[0]
+        coords = self.canvas.coords(tag)
+        
+        if len(coords) < 4:
+            print(f"Warning: Invalid coordinates for item {self.item}")
+            return
+        
+        width = coords[2] - coords[0]
+        height = coords[3] - coords[1]
+        
+        new_x = round((event.x - width / 2) / self.grid_size) * self.grid_size
+        new_y = round((event.y - height / 2) / self.grid_size) * self.grid_size
+        
+        delta_x = new_x - coords[0]
+        delta_y = new_y - coords[1]
+        
+        self.canvas.move(tag, delta_x, delta_y)
+        self.canvas.tag_raise(tag)  # Maintenir l'objet au-dessus pendant le déplacement
 
     def on_drop(self, event):
-        #x,y = pyautogui.position()
-        self.widget.place(x=round(self.root.winfo_pointerx()-self.root.winfo_rootx()-(self.widget.winfo_width()/2), -1), y=round(self.root.winfo_pointery()-self.root.winfo_rooty()-(self.widget.winfo_height()), -1))
-        print(self.widget.winfo_rootx(), self.widget.winfo_rooty())
+        self.item = None
 
-plan_root = tk.Tk()
-plan_root.title('Plan')
-plan_root.geometry('600x400+100+100')
+def create_grid(event=None):
+    canvas.delete('grid_line')
+    w = canvas.winfo_width()
+    h = canvas.winfo_height()
+    for i in range(0, w, grid_size):
+        canvas.create_line([(i, 0), (i, h)], tag='grid_line', fill='#3aa13a', width=0.5)
+    for i in range(0, h, grid_size):
+        canvas.create_line([(0, i), (w, i)], tag='grid_line', fill='#3aa13a', width=0.5)
 
-commands_root = tk.Tk()
-commands_root.title('Commands')
-commands_root.geometry('250x400+700+100')
+def add_desk():
+    grid_size = 20
+    x1, y1 = 20, 20  
+    width, height = 4 * grid_size, 2 * grid_size
+    x2, y2 = x1 + width, y1 + height
+    
+    tag = f"node-{len(canvas.find_all())}"
+    
+    item = canvas.create_rectangle(x1, y1, x2, y2, fill="#662100", tags=tag)
+    text = canvas.create_text((x1+x2)/2, (y1+y2)/2, text='Desk', fill="#ffffff", tags=tag)
+    
+    drag_manager.add_draggable(tag)
 
-commands_frame = tk.Frame(commands_root)
-commands_frame.pack(padx=20,pady=20)
+def add_student():
+    grid_size = 20
+    x1, y1 = 20, 20  
+    width, height = 2 * grid_size, 1 * grid_size
+    x2, y2 = x1 + width, y1 + height
+    
+    tag = f"node-{len(canvas.find_all())}"
+    
+    item = canvas.create_rectangle(x1, y1, x2, y2, fill="#000066", outline="#0000ff", tags=tag)
+    text = canvas.create_text((x1+x2)/2, (y1+y2)/2, text='Student', fill="#ffffff", tags=tag)
+    
+    drag_manager.add_draggable(tag)
 
-add_desk_btn = tk.Button(commands_frame, text='Add Desk', command=add_desk)
-add_desk_btn.grid(column=0, row=0, padx=5, pady=5)
-add_student_btn = tk.Button(commands_frame, text='Add Student', command=add_student)
-add_student_btn.grid(column=0, row=1, padx=5, pady=5)
+root = tk.Tk()
+root.title('DesksManager')
+grid_size = 20
 
-plan_root.mainloop()
-commands_root.mainloop()
+control_frame = tk.Frame(root)
+control_frame.pack()
+
+add_desk_btn = tk.Button(control_frame, text='Add desk', command=add_desk)
+add_desk_btn.grid(row=0, column=0, padx=5)
+add_student_btn = tk.Button(control_frame, text='Add student', command=add_student)
+add_student_btn.grid(row=0, column=1, padx=5)
+
+
+canvas = tk.Canvas(root, width=500, height=500, background="#383")
+canvas.pack(padx=8, pady=8)
+
+drag_manager = DragManager(canvas, grid_size)
+
+canvas.bind('<Configure>', create_grid)
+
+root.mainloop()
