@@ -1,4 +1,5 @@
 import tkinter as tk
+from PIL import ImageTk, Image
 
 class DragManager:
     def __init__(self, canvas, grid_size=20):
@@ -16,7 +17,7 @@ class DragManager:
         self.start_x = event.x
         self.start_y = event.y
         tag = self.canvas.gettags(self.item)[0]
-        self.canvas.tag_raise(tag)  # Élever l'objet au-dessus des autres
+        self.canvas.tag_raise(tag)
 
     def on_drag(self, event):
         if not self.item:
@@ -35,11 +36,17 @@ class DragManager:
         new_x = round((event.x - width / 2) / self.grid_size) * self.grid_size
         new_y = round((event.y - height / 2) / self.grid_size) * self.grid_size
         
+        canvas_width = self.canvas.winfo_width()
+        canvas_height = self.canvas.winfo_height()
+        
+        new_x = max(0, min(new_x, canvas_width - width))
+        new_y = max(0, min(new_y, canvas_height - height))
+        
         delta_x = new_x - coords[0]
         delta_y = new_y - coords[1]
         
         self.canvas.move(tag, delta_x, delta_y)
-        self.canvas.tag_raise(tag)  # Maintenir l'objet au-dessus pendant le déplacement
+        self.canvas.tag_raise(tag) 
 
     def on_drop(self, event):
         self.item = None
@@ -81,18 +88,28 @@ def add_student():
 
 root = tk.Tk()
 root.title('DesksManager')
+
+theme = 'light'
 grid_size = 20
 
+add_desk_img = ImageTk.PhotoImage(Image.open("Assets/{}_plus_rectangle.png".format(theme)).resize((25,25)))
+add_student_img = ImageTk.PhotoImage(Image.open("Assets/{}_person_badge_plus_fill.png".format(theme)).resize((25,25)))
+dlt_img = ImageTk.PhotoImage(Image.open("Assets/{}_delete.png".format(theme)).resize((25,25)))
+
 control_frame = tk.Frame(root)
-control_frame.pack()
+control_frame.pack(side='left')
 
-add_desk_btn = tk.Button(control_frame, text='Add desk', command=add_desk)
-add_desk_btn.grid(row=0, column=0, padx=5)
-add_student_btn = tk.Button(control_frame, text='Add student', command=add_student)
-add_student_btn.grid(row=0, column=1, padx=5)
+add_desk_btn = tk.Button(control_frame, text='Add desk', font=("San Francisco", 9, 'bold'), image=add_desk_img, compound='left', width=100, command=add_desk)
+add_desk_btn.grid(row=0, column=0, padx=(10, 5), pady=5)
+add_student_btn = tk.Button(control_frame, text='Add student', font=("San Francisco", 9, 'bold'), image=add_student_img, compound='left', width=100, command=add_student)
+add_student_btn.grid(row=0, column=1, padx=(5, 10), pady=5)
+dlt_btn = tk.Button(control_frame, text='Delete', font=("San Francisco", 9, 'bold'), image=dlt_img, compound='left', width=218) # Do nothing for now :/
+dlt_btn.grid(row=1, column=0, columnspan=2, padx=10, pady=5)
 
+canvas_frame = tk.Frame(root)
+canvas_frame.pack(side='right')
 
-canvas = tk.Canvas(root, width=500, height=500, background="#383")
+canvas = tk.Canvas(canvas_frame, width=600, height=600, background="#383")
 canvas.pack(padx=8, pady=8)
 
 drag_manager = DragManager(canvas, grid_size)
