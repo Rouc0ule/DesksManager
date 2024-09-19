@@ -63,7 +63,7 @@ def create_grid(event=None):
 def add_desk():
     grid_size = 20
     x1, y1 = 20, 20  
-    width, height = 4 * grid_size, 2 * grid_size
+    width, height = 8 * grid_size, 4 * grid_size
     x2, y2 = x1 + width, y1 + height
     
     tag = f"node-{len(canvas.find_all())}"
@@ -76,7 +76,7 @@ def add_desk():
 def add_student():
     grid_size = 20
     x1, y1 = 20, 20  
-    width, height = 2 * grid_size, 1 * grid_size
+    width, height = 4 * grid_size, 2 * grid_size
     x2, y2 = x1 + width, y1 + height
     
     tag = f"node-{len(canvas.find_all())}"
@@ -96,20 +96,21 @@ add_desk_img = ImageTk.PhotoImage(Image.open("Assets/{}_plus_rectangle.png".form
 add_student_img = ImageTk.PhotoImage(Image.open("Assets/{}_person_badge_plus_fill.png".format(theme)).resize((25,25)))
 dlt_img = ImageTk.PhotoImage(Image.open("Assets/{}_delete.png".format(theme)).resize((25,25)))
 
-control_frame = tk.Frame(root)
+control_frame = tk.Frame(root, width=400)
 control_frame.pack(side='left')
 
 add_desk_btn = tk.Button(control_frame, text='Add desk', font=("San Francisco", 9, 'bold'), image=add_desk_img, compound='left', width=100, command=add_desk)
 add_desk_btn.grid(row=0, column=0, padx=(10, 5), pady=5)
 add_student_btn = tk.Button(control_frame, text='Add student', font=("San Francisco", 9, 'bold'), image=add_student_img, compound='left', width=100, command=add_student)
 add_student_btn.grid(row=0, column=1, padx=(5, 10), pady=5)
+
 dlt_btn = tk.Button(control_frame, text='Delete', font=("San Francisco", 9, 'bold'), image=dlt_img, compound='left', width=218) # Do nothing for now :/
 dlt_btn.grid(row=1, column=0, columnspan=2, padx=10, pady=5)
 
 canvas_frame = tk.Frame(root)
 canvas_frame.pack(side='right')
 
-canvas = tk.Canvas(canvas_frame, width=600, height=600, background="#383")
+canvas = tk.Canvas(canvas_frame, width=1000, height=800, background="#383")
 canvas.pack(padx=8, pady=8)
 
 drag_manager = DragManager(canvas, grid_size)
