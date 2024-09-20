@@ -1,66 +1,55 @@
 import tkinter as tk
-from jsonloader import *
 from PIL import ImageTk, Image
-import pyautogui
-import os
-import pywinstyles
+from dragManager import DragManager
+from uniqueTagGenerator import UniqueTagGenerator
+from functions import create_grid, add_desk, add_student, rotate, delete, center_window
+#import pywinstyles
 
-def add_desk():
-    desk = tk.Label(roomframe, image = deskimg)
-    desk.place(x=0, y=0)
-    deskdrag = myDragManager()
-    deskdrag.add_dragable_widget(desk)
-
-def add_student():
-    student = tk.Label(roomframe, image = studentimg)
-    student.place(x=0, y=0)
-    studentdrag = myDragManager()
-    studentdrag.add_dragable_widget(student)
-
-class myDragManager():
-    def add_dragable_widget(self, widget):
-        self.widget = widget
-        self.root = widget.winfo_toplevel()
-
-        self.widget.bind("<B1-Motion>", self.on_drag)
-        self.widget.bind("<ButtonRelease>", self.on_drop)
-        self.widget.configure(cursor="hand1")
-
-    def on_drag(self, event):
-        #x,y = pyautogui.position()
-        self.widget.place(x=round(self.root.winfo_pointerx()-self.root.winfo_rootx()-(self.widget.winfo_width()/2), -1), y=round(self.root.winfo_pointery()-self.root.winfo_rooty()-(self.widget.winfo_height()), -1))
-    
-    def on_drop(self, event):
-        #x,y = pyautogui.position()
-        self.widget.place(x=round(self.root.winfo_pointerx()-self.root.winfo_rootx()-(self.widget.winfo_width()/2), -1), y=round(self.root.winfo_pointery()-self.root.winfo_rooty()-(self.widget.winfo_height()), -1))
+# def size():
+#     print('Size : {} x {}'.format(root.winfo_width(), root.winfo_height()))
 
 root = tk.Tk()
-root.title("DesksOrganiser")
-root.geometry("800x500")
-root.configure()
+root.title('DesksManager')
+root.resizable(False, False)
+center_window(root, 1300, 820)
 #pywinstyles.apply_style(root, "acrylic")
 
-deskimg = ImageTk.PhotoImage(Image.open("Assets/deskpng.png").resize((100,50)))
-studentimg = ImageTk.PhotoImage(Image.open("Assets/Person Fill.png").resize((50,50)))
+theme = 'light'
+grid_size = 20
+number_of_items = 0
 
-# sideframe = tk.Frame(root, background='gray')
-# sideframe.pack(side='left', fill='y')
+add_desk_img = ImageTk.PhotoImage(Image.open("Assets/{}_plus_rectangle.png".format(theme)).resize((25,25)))
+add_student_img = ImageTk.PhotoImage(Image.open("Assets/{}_person_badge_plus_fill.png".format(theme)).resize((25,25)))
+delete_img = ImageTk.PhotoImage(Image.open("Assets/{}_delete.png".format(theme)).resize((25,25)))
+rotate_img = ImageTk.PhotoImage(Image.open("Assets/{}_rotate_left.png".format(theme)).resize((25,25)))
 
-# l1 = tk.Label(sideframe, text='Student list', font=("San Francisco", 10, "bold"))
-# l1.pack(padx=50, pady=10)
+control_frame = tk.LabelFrame(root, text='Commands', width=400)
+control_frame.pack(side='left', padx=(20, 10))
 
-topframe = tk.Frame(root, height=50, background='lightgray')
-topframe.pack(side='top', fill='x')
+add_desk_btn = tk.Button(control_frame, text='Add desk', font=("San Francisco", 9, 'bold'), image=add_desk_img, compound='left', width=100, command=lambda: add_desk(canvas, grid_size, tag_generator, drag_manager, rotate_btn, delete_btn))
+add_desk_btn.grid(row=0, column=0, padx=(10, 5), pady=5)
 
-add_desk_btn = tk.Button(topframe, text='Add desk', font=("San Francisco", 9), command=add_desk)
-add_desk_btn.pack(padx=5,pady=5)
+add_student_btn = tk.Button(control_frame, text='Add student', font=("San Francisco", 9, 'bold'), image=add_student_img, compound='left', width=100, command=lambda: add_student(canvas, grid_size, tag_generator, drag_manager, rotate_btn, delete_btn))
+add_student_btn.grid(row=0, column=1, padx=(5, 10), pady=5)
 
-add_student_btn = tk.Button(topframe, text='Add Student', font=("San Francisco", 9), command=add_student)
-add_student_btn.pack(padx=5,pady=5)
+rotate_btn = tk.Button(control_frame, text='Rotate', font=("San Francisco", 9, 'bold'), image=rotate_img, compound='left', width=218, command=lambda: rotate(drag_manager, rotate_btn, delete_btn))
+rotate_btn.grid(row=1, column=0, columnspan=2, padx=10, pady=5)
 
-roomframe = tk.Frame(root, background='darkgray')
-roomframe.pack(side='right', expand=True, fill="both")
+delete_btn = tk.Button(control_frame, text='Delete', font=("San Francisco", 9, 'bold'), image=delete_img, compound='left', width=218, command=lambda: delete(drag_manager, rotate_btn, delete_btn))
+delete_btn.grid(row=2, column=0, columnspan=2, padx=10, pady=5)
 
-#l = tk.Label(roomframe, text="Label").place(relx=0.5, rely=0.5)
+# size_btn = tk.Button(control_frame, text='Size', font=("San Francisco", 9, 'bold'), command=size)
+# size_btn.grid(row=3, column=0, columnspan=2, padx=10, pady=5)
+
+canvas_frame = tk.Frame(root)
+canvas_frame.pack(side='right', padx=10, pady=10)
+
+canvas = tk.Canvas(canvas_frame, width=1000, height=800, background="#383", highlightthickness=0)
+canvas.pack()
+
+drag_manager = DragManager(canvas, grid_size)
+
+canvas.bind('<Configure>', lambda event: create_grid(canvas, grid_size))
+tag_generator = UniqueTagGenerator()
 
 root.mainloop()
