@@ -4,6 +4,7 @@ class DragManager:
     def __init__(self, canvas, grid_size=20):
         self.canvas = canvas
         self.item = None
+        self.move_mode = True
         self.rotate_mode = False
         self.delete_mode = False
         self.grid_size = grid_size
@@ -15,13 +16,17 @@ class DragManager:
 
     def on_start(self, event):
         self.item = self.canvas.find_withtag(tk.CURRENT)[0]
-        if self.delete_mode == True:
+        if self.delete_mode:
             self.delete_item(self.item)
             return
-        self.start_x = event.x
-        self.start_y = event.y
-        tag = self.canvas.gettags(self.item)[0]
-        self.canvas.tag_raise(tag)
+        elif self.rotate_mode:
+            self.rotate_item(self.item)
+            return
+        elif self.move_mode:
+            self.start_x = event.x
+            self.start_y = event.y
+            tag = self.canvas.gettags(self.item)[0]
+            self.canvas.tag_raise(tag)
 
     def delete_item(self, item):
         tags = self.canvas.gettags(item)
@@ -31,8 +36,42 @@ class DragManager:
         else:
             self.canvas.delete(item)
 
+    def rotate_item(self, item):
+        tags = self.canvas.gettags(item)
+        if tags:
+            main_tag = tags[0]
+            rotation_tag = next((tag for tag in tags if tag.startswith(f"{main_tag}_rotation_")), None)
+            if rotation_tag:
+                current_rotation = int(rotation_tag.split('_')[-1])
+                new_rotation = (current_rotation + 90) % 360
+                new_rotation_tag = f"{main_tag}_rotation_{new_rotation}"
+
+                # Mise à jour des tags
+                self.canvas.dtag(item, rotation_tag)
+                self.canvas.addtag_withtag(new_rotation_tag, main_tag)
+
+                # Rotation du rectangle
+                x1, y1, x2, y2 = self.canvas.coords(main_tag)
+                center_x, center_y = (x1 + x2) / 2, (y1 + y2) / 2
+                width, height = x2 - x1, y2 - y1
+                if new_rotation in [90, 270]:
+                    width, height = height, width
+                new_coords = [center_x - width/2, center_y - height/2, center_x + width/2, center_y + height/2]
+                self.canvas.coords(main_tag, *new_coords)
+
+                # Rotation du texte
+                self.rotate_text(main_tag, new_rotation)
+    
+    def rotate_text(self, tag, rotation):
+        text_item = self.canvas.find_withtag(f"{tag}&&text")
+        if text_item:
+            x1, y1, x2, y2 = self.canvas.coords(tag)
+            center_x, center_y = (x1 + x2) / 2, (y1 + y2) / 2
+            self.canvas.coords(text_item, center_x, center_y)
+            self.canvas.itemconfig(text_item, angle=rotation)
+
     def on_drag(self, event):
-        if not self.item:
+        if not self.item or not self.move_mode:
             return
         
         tag = self.canvas.gettags(self.item)[0]
