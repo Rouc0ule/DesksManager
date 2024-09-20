@@ -63,6 +63,16 @@ class DragManager:
     def on_drop(self, event):
         self.item = None
 
+class UniqueTagGenerator:
+    def __init__(self):
+        self.counter = 0
+
+    def next_tag(self):
+        self.counter += 1
+        print(self.counter)
+        return f"node-{self.counter}"
+
+
 def create_grid(event=None):
     canvas.delete('grid_line')
     w = canvas.winfo_width()
@@ -73,26 +83,26 @@ def create_grid(event=None):
         canvas.create_line([(0, i), (w, i)], tag='grid_line', fill='#3aa13a', width=0.5)
 
 def add_desk():
-    grid_size = 20
+    global grid_size
     x1, y1 = 20, 20  
     width, height = 8 * grid_size, 4 * grid_size
     x2, y2 = x1 + width, y1 + height
     
-    tag = f"node-{len(canvas.find_all())}"
-    
+    tag = tag_generator.next_tag()
+
     item = canvas.create_rectangle(x1, y1, x2, y2, fill="#662100", tags=tag)
     text = canvas.create_text((x1+x2)/2, (y1+y2)/2, text='Desk', fill="#ffffff", tags=tag)
     
     drag_manager.add_draggable(tag)
 
 def add_student():
-    grid_size = 20
+    global grid_size
     x1, y1 = 20, 20  
     width, height = 4 * grid_size, 2 * grid_size
     x2, y2 = x1 + width, y1 + height
     
-    tag = f"node-{len(canvas.find_all())}"
-    
+    tag = tag_generator.next_tag()
+
     item = canvas.create_rectangle(x1, y1, x2, y2, fill="#000066", outline="#0000ff", tags=tag)
     text = canvas.create_text((x1+x2)/2, (y1+y2)/2, text='Student', fill="#ffffff", tags=tag)
     
@@ -109,11 +119,25 @@ def delete():
         drag_manager.delete_mode = False
         print(drag_manager.delete_mode)
 
+def center_window(root):
+    root.update_idletasks()
+    width = 1265
+    height = 820
+    screen_width = root.winfo_screenwidth()
+    screen_height = root.winfo_screenheight()
+    x = (screen_width - width) // 2
+    y = (screen_height - height) // 2
+    root.geometry(f"{width}x{height}+{x}+{y}")
+
 root = tk.Tk()
 root.title('DesksManager')
 
+# root.minsize('1265x820')
+center_window(root)
+
 theme = 'light'
 grid_size = 20
+number_of_items = 0
 
 add_desk_img = ImageTk.PhotoImage(Image.open("Assets/{}_plus_rectangle.png".format(theme)).resize((25,25)))
 add_student_img = ImageTk.PhotoImage(Image.open("Assets/{}_person_badge_plus_fill.png".format(theme)).resize((25,25)))
@@ -139,5 +163,6 @@ canvas.pack(padx=8, pady=8)
 drag_manager = DragManager(canvas, grid_size)
 
 canvas.bind('<Configure>', create_grid)
+tag_generator = UniqueTagGenerator()
 
 root.mainloop()
