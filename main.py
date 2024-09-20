@@ -5,6 +5,7 @@ class DragManager:
     def __init__(self, canvas, grid_size=20):
         self.canvas = canvas
         self.item = None
+        self.delete_mode = False
         self.grid_size = grid_size
 
     def add_draggable(self, tag):
@@ -14,10 +15,21 @@ class DragManager:
 
     def on_start(self, event):
         self.item = self.canvas.find_withtag(tk.CURRENT)[0]
+        if self.delete_mode == True:
+            self.delete_item(self.item)
+            return
         self.start_x = event.x
         self.start_y = event.y
         tag = self.canvas.gettags(self.item)[0]
         self.canvas.tag_raise(tag)
+
+    def delete_item(self, item):
+        tags = self.canvas.gettags(item)
+        if tags:
+            tag = tags[0]
+            self.canvas.delete(tag)
+        else:
+            self.canvas.delete(item)
 
     def on_drag(self, event):
         if not self.item:
@@ -86,6 +98,17 @@ def add_student():
     
     drag_manager.add_draggable(tag)
 
+def delete():
+    global drag_manager
+    if drag_manager.delete_mode == False :
+        dlt_btn.config(relief=tk.SUNKEN)
+        drag_manager.delete_mode = True
+        print(drag_manager.delete_mode)
+    elif drag_manager.delete_mode == True :
+        dlt_btn.config(relief=tk.RAISED)
+        drag_manager.delete_mode = False
+        print(drag_manager.delete_mode)
+
 root = tk.Tk()
 root.title('DesksManager')
 
@@ -104,7 +127,7 @@ add_desk_btn.grid(row=0, column=0, padx=(10, 5), pady=5)
 add_student_btn = tk.Button(control_frame, text='Add student', font=("San Francisco", 9, 'bold'), image=add_student_img, compound='left', width=100, command=add_student)
 add_student_btn.grid(row=0, column=1, padx=(5, 10), pady=5)
 
-dlt_btn = tk.Button(control_frame, text='Delete', font=("San Francisco", 9, 'bold'), image=dlt_img, compound='left', width=218) # Do nothing for now :/
+dlt_btn = tk.Button(control_frame, text='Delete', font=("San Francisco", 9, 'bold'), image=dlt_img, compound='left', width=218, command=delete)
 dlt_btn.grid(row=1, column=0, columnspan=2, padx=10, pady=5)
 
 canvas_frame = tk.Frame(root)
