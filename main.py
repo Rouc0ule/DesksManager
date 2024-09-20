@@ -1,138 +1,14 @@
 import tkinter as tk
 from PIL import ImageTk, Image
+from dragManager import DragManager
+from uniqueTagGenerator import UniqueTagGenerator
+from functions import create_grid, add_desk, add_student, delete, center_window
 
-class DragManager:
-    def __init__(self, canvas, grid_size=20):
-        self.canvas = canvas
-        self.item = None
-        self.delete_mode = False
-        self.grid_size = grid_size
-
-    def add_draggable(self, tag):
-        self.canvas.tag_bind(tag, '<ButtonPress-1>', self.on_start)
-        self.canvas.tag_bind(tag, '<B1-Motion>', self.on_drag)
-        self.canvas.tag_bind(tag, '<ButtonRelease-1>', self.on_drop)
-
-    def on_start(self, event):
-        self.item = self.canvas.find_withtag(tk.CURRENT)[0]
-        if self.delete_mode == True:
-            self.delete_item(self.item)
-            return
-        self.start_x = event.x
-        self.start_y = event.y
-        tag = self.canvas.gettags(self.item)[0]
-        self.canvas.tag_raise(tag)
-
-    def delete_item(self, item):
-        tags = self.canvas.gettags(item)
-        if tags:
-            tag = tags[0]
-            self.canvas.delete(tag)
-        else:
-            self.canvas.delete(item)
-
-    def on_drag(self, event):
-        if not self.item:
-            return
-        
-        tag = self.canvas.gettags(self.item)[0]
-        coords = self.canvas.coords(tag)
-        
-        if len(coords) < 4:
-            print(f"Warning: Invalid coordinates for item {self.item}")
-            return
-        
-        width = coords[2] - coords[0]
-        height = coords[3] - coords[1]
-        
-        new_x = round((event.x - width / 2) / self.grid_size) * self.grid_size
-        new_y = round((event.y - height / 2) / self.grid_size) * self.grid_size
-        
-        canvas_width = self.canvas.winfo_width()
-        canvas_height = self.canvas.winfo_height()
-        
-        new_x = max(0, min(new_x, canvas_width - width))
-        new_y = max(0, min(new_y, canvas_height - height))
-        
-        delta_x = new_x - coords[0]
-        delta_y = new_y - coords[1]
-        
-        self.canvas.move(tag, delta_x, delta_y)
-        self.canvas.tag_raise(tag) 
-
-    def on_drop(self, event):
-        self.item = None
-
-class UniqueTagGenerator:
-    def __init__(self):
-        self.counter = 0
-
-    def next_tag(self):
-        self.counter += 1
-        print(self.counter)
-        return f"node-{self.counter}"
-
-
-def create_grid(event=None):
-    canvas.delete('grid_line')
-    w = canvas.winfo_width()
-    h = canvas.winfo_height()
-    for i in range(0, w, grid_size):
-        canvas.create_line([(i, 0), (i, h)], tag='grid_line', fill='#3aa13a', width=0.5)
-    for i in range(0, h, grid_size):
-        canvas.create_line([(0, i), (w, i)], tag='grid_line', fill='#3aa13a', width=0.5)
-
-def add_desk():
-    global grid_size
-    x1, y1 = 20, 20  
-    width, height = 8 * grid_size, 4 * grid_size
-    x2, y2 = x1 + width, y1 + height
-    
-    tag = tag_generator.next_tag()
-
-    item = canvas.create_rectangle(x1, y1, x2, y2, fill="#662100", tags=tag)
-    text = canvas.create_text((x1+x2)/2, (y1+y2)/2, text='Desk', fill="#ffffff", tags=tag)
-    
-    drag_manager.add_draggable(tag)
-
-def add_student():
-    global grid_size
-    x1, y1 = 20, 20  
-    width, height = 4 * grid_size, 2 * grid_size
-    x2, y2 = x1 + width, y1 + height
-    
-    tag = tag_generator.next_tag()
-
-    item = canvas.create_rectangle(x1, y1, x2, y2, fill="#000066", outline="#0000ff", tags=tag)
-    text = canvas.create_text((x1+x2)/2, (y1+y2)/2, text='Student', fill="#ffffff", tags=tag)
-    
-    drag_manager.add_draggable(tag)
-
-def delete():
-    global drag_manager
-    if drag_manager.delete_mode == False :
-        dlt_btn.config(relief=tk.SUNKEN)
-        drag_manager.delete_mode = True
-        print(drag_manager.delete_mode)
-    elif drag_manager.delete_mode == True :
-        dlt_btn.config(relief=tk.RAISED)
-        drag_manager.delete_mode = False
-        print(drag_manager.delete_mode)
-
-def center_window(root):
-    root.update_idletasks()
-    width = 1265
-    height = 820
-    screen_width = root.winfo_screenwidth()
-    screen_height = root.winfo_screenheight()
-    x = (screen_width - width) // 2
-    y = (screen_height - height) // 2
-    root.geometry(f"{width}x{height}+{x}+{y}")
+# def size():
+#     print('Size : {} x {}'.format(root.winfo_width(), root.winfo_height()))
 
 root = tk.Tk()
 root.title('DesksManager')
-
-# root.minsize('1265x820')
 center_window(root)
 
 theme = 'light'
@@ -143,26 +19,30 @@ add_desk_img = ImageTk.PhotoImage(Image.open("Assets/{}_plus_rectangle.png".form
 add_student_img = ImageTk.PhotoImage(Image.open("Assets/{}_person_badge_plus_fill.png".format(theme)).resize((25,25)))
 dlt_img = ImageTk.PhotoImage(Image.open("Assets/{}_delete.png".format(theme)).resize((25,25)))
 
-control_frame = tk.Frame(root, width=400)
-control_frame.pack(side='left')
+control_frame = tk.LabelFrame(root, text='Commands', width=400)
+control_frame.pack(side='left', padx=(20, 10))
 
-add_desk_btn = tk.Button(control_frame, text='Add desk', font=("San Francisco", 9, 'bold'), image=add_desk_img, compound='left', width=100, command=add_desk)
+add_desk_btn = tk.Button(control_frame, text='Add desk', font=("San Francisco", 9, 'bold'), image=add_desk_img, compound='left', width=100, command=lambda: add_desk(canvas, grid_size, tag_generator, drag_manager))
 add_desk_btn.grid(row=0, column=0, padx=(10, 5), pady=5)
-add_student_btn = tk.Button(control_frame, text='Add student', font=("San Francisco", 9, 'bold'), image=add_student_img, compound='left', width=100, command=add_student)
+
+add_student_btn = tk.Button(control_frame, text='Add student', font=("San Francisco", 9, 'bold'), image=add_student_img, compound='left', width=100, command=lambda: add_student(canvas, grid_size, tag_generator, drag_manager))
 add_student_btn.grid(row=0, column=1, padx=(5, 10), pady=5)
 
-dlt_btn = tk.Button(control_frame, text='Delete', font=("San Francisco", 9, 'bold'), image=dlt_img, compound='left', width=218, command=delete)
+dlt_btn = tk.Button(control_frame, text='Delete', font=("San Francisco", 9, 'bold'), image=dlt_img, compound='left', width=218, command=lambda: delete(drag_manager, dlt_btn))
 dlt_btn.grid(row=1, column=0, columnspan=2, padx=10, pady=5)
+
+# size_btn = tk.Button(control_frame, text='Size', font=("San Francisco", 9, 'bold'), command=size)
+# size_btn.grid(row=2, column=0, columnspan=2, padx=10, pady=5)
 
 canvas_frame = tk.Frame(root)
 canvas_frame.pack(side='right')
 
 canvas = tk.Canvas(canvas_frame, width=1000, height=800, background="#383")
-canvas.pack(padx=8, pady=8)
+canvas.pack(padx=10, pady=10)
 
 drag_manager = DragManager(canvas, grid_size)
 
-canvas.bind('<Configure>', create_grid)
+canvas.bind('<Configure>', lambda event: create_grid(canvas, grid_size))
 tag_generator = UniqueTagGenerator()
 
 root.mainloop()
