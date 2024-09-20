@@ -9,11 +9,16 @@ def create_grid(canvas, grid_size):
     for i in range(0, h, grid_size):
         canvas.create_line([(0, i), (w, i)], tag='grid_line', fill='#3aa13a', width=0.5)
 
-def add_desk(canvas, grid_size, tag_generator, drag_manager):
+def add_desk(canvas, grid_size, tag_generator, drag_manager, rotate_btn, delete_btn):
     x1, y1 = 20, 20  
     width, height = 8 * grid_size, 4 * grid_size
     x2, y2 = x1 + width, y1 + height
     
+    rotate_btn.config(relief=tk.RAISED)
+    drag_manager.rotate_mode = False
+    delete_btn.config(relief=tk.RAISED)
+    drag_manager.delete_mode = False
+
     tag = tag_generator.next_tag()
 
     item = canvas.create_rectangle(x1, y1, x2, y2, fill="#662100", tags=tag)
@@ -21,10 +26,15 @@ def add_desk(canvas, grid_size, tag_generator, drag_manager):
     
     drag_manager.add_draggable(tag)
 
-def add_student(canvas, grid_size, tag_generator, drag_manager):
+def add_student(canvas, grid_size, tag_generator, drag_manager, rotate_btn, delete_btn):
     x1, y1 = 20, 20  
     width, height = 4 * grid_size, 2 * grid_size
     x2, y2 = x1 + width, y1 + height
+
+    rotate_btn.config(relief=tk.RAISED)
+    drag_manager.rotate_mode = False
+    delete_btn.config(relief=tk.RAISED)
+    drag_manager.delete_mode = False
     
     tag = tag_generator.next_tag()
 
@@ -33,18 +43,32 @@ def add_student(canvas, grid_size, tag_generator, drag_manager):
     
     drag_manager.add_draggable(tag)
 
-def delete(drag_manager, dlt_btn):
+def delete(drag_manager, rotate_btn, delete_btn):
+
+    rotate_btn.config(relief=tk.RAISED)
+    drag_manager.rotate_mode = False
+
     if drag_manager.delete_mode == False:
-        dlt_btn.config(relief=tk.SUNKEN)
+        delete_btn.config(relief=tk.SUNKEN)
         drag_manager.delete_mode = True
     elif drag_manager.delete_mode == True:
-        dlt_btn.config(relief=tk.RAISED)
+        delete_btn.config(relief=tk.RAISED)
         drag_manager.delete_mode = False
 
-def center_window(root):
+def rotate(drag_manager, rotate_btn, delete_btn):
+
+    delete_btn.config(relief=tk.RAISED)
+    drag_manager.delete_mode = False
+    
+    if drag_manager.rotate_mode == False:
+        rotate_btn.config(relief=tk.SUNKEN)
+        drag_manager.rotate_mode = True
+    elif drag_manager.rotate_mode == True:
+        rotate_btn.config(relief=tk.RAISED)
+        drag_manager.rotate_mode = False
+
+def center_window(root, width, height):
     root.update_idletasks()
-    width = 1300
-    height = 820
     screen_width = root.winfo_screenwidth()
     screen_height = root.winfo_screenheight()
     x = (screen_width - width) // 2

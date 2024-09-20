@@ -4,6 +4,7 @@ class DragManager:
     def __init__(self, canvas, grid_size=20):
         self.canvas = canvas
         self.item = None
+        self.rotate_mode = False
         self.delete_mode = False
         self.grid_size = grid_size
 
