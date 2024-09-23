@@ -1,4 +1,5 @@
 import tkinter as tk
+from jsonloader import JsonManager
 
 def create_grid(canvas, grid_size):
     canvas.delete('grid_line')
@@ -16,9 +17,9 @@ def add_desk(canvas, grid_size, tag_generator, drag_manager, move_btn, rotate_bt
     
     move_btn.config(relief=tk.SUNKEN)
     drag_manager.move_mode = True
-    rotate_btn.config(relief=tk.RAISED)
+    rotate_btn.config(relief=tk.RIDGE)
     drag_manager.rotate_mode = False
-    delete_btn.config(relief=tk.RAISED)
+    delete_btn.config(relief=tk.RIDGE)
     drag_manager.delete_mode = False
 
     tag = tag_generator.next_tag()
@@ -36,9 +37,9 @@ def add_student(canvas, grid_size, tag_generator, drag_manager, move_btn, rotate
 
     move_btn.config(relief=tk.SUNKEN)
     drag_manager.move_mode = True
-    rotate_btn.config(relief=tk.RAISED)
+    rotate_btn.config(relief=tk.RIDGE)
     drag_manager.rotate_mode = False
-    delete_btn.config(relief=tk.RAISED)
+    delete_btn.config(relief=tk.RIDGE)
     drag_manager.delete_mode = False
     
     tag = tag_generator.next_tag()
@@ -50,9 +51,9 @@ def add_student(canvas, grid_size, tag_generator, drag_manager, move_btn, rotate
     drag_manager.add_draggable(tag)
 
 def rotate(drag_manager, move_btn, rotate_btn, delete_btn):
-    move_btn.config(relief=tk.RAISED)
+    move_btn.config(relief=tk.RIDGE)
     drag_manager.move_mode = False
-    delete_btn.config(relief=tk.RAISED)
+    delete_btn.config(relief=tk.RIDGE)
     drag_manager.delete_mode = False
     
     if drag_manager.rotate_mode == False:
@@ -63,9 +64,9 @@ def rotate(drag_manager, move_btn, rotate_btn, delete_btn):
         drag_manager.rotate_mode = False
 
 def delete(drag_manager, move_btn, rotate_btn, delete_btn):
-    move_btn.config(relief=tk.RAISED)
+    move_btn.config(relief=tk.RIDGE)
     drag_manager.move_mode = False
-    rotate_btn.config(relief=tk.RAISED)
+    rotate_btn.config(relief=tk.RIDGE)
     drag_manager.rotate_mode = False
 
     if drag_manager.delete_mode == False:
@@ -76,17 +77,40 @@ def delete(drag_manager, move_btn, rotate_btn, delete_btn):
         drag_manager.delete_mode = False
 
 def move(drag_manager, move_btn, rotate_btn, delete_btn):
-    rotate_btn.config(relief=tk.RAISED)
+    rotate_btn.config(relief=tk.RIDGE)
     drag_manager.rotate_mode = False
-    delete_btn.config(relief=tk.RAISED)
+    delete_btn.config(relief=tk.RIDGE)
     drag_manager.delete_mode = False
     
     if drag_manager.move_mode == False:
         move_btn.config(relief=tk.SUNKEN)
         drag_manager.move_mode = True
     elif drag_manager.move_mode == True:
-        move_btn.config(relief=tk.RAISED)
+        move_btn.config(relief=tk.RIDGE)
         drag_manager.move_mode = False
+
+def add_to_student_list(student_list_lastname_entry, student_list_firstname_entry, student_list_box):
+    lastname = student_list_lastname_entry.get().strip().upper()
+    firstname = student_list_firstname_entry.get().strip()
+    
+    if not lastname or not firstname:
+        print("Nom ou prénom manquant")
+        return
+    
+    text = f"{lastname}, {firstname}"
+    student_list_box.insert(tk.END, text)
+    
+    print(f"Tentative d'ajout de l'étudiant : {lastname} {firstname}")
+    
+    json_manager = JsonManager()
+    try:
+        json_manager.add_student("4e2", lastname, firstname)
+        print("Étudiant ajouté avec succès")
+    except Exception as e:
+        print(f"Erreur lors de l'ajout de l'étudiant : {e}")
+    
+    student_list_lastname_entry.delete(0, tk.END)
+    student_list_firstname_entry.delete(0, tk.END)
 
 def center_window(root, width, height):
     root.update_idletasks()
