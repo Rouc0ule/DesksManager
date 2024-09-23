@@ -63,10 +63,10 @@ student_list_firstname_entry.grid(row=1, column=0, columnspan=2, padx=10, pady=5
 add_to_student_list_btn = tk.Button(student_list_frame, text='Add to list', font=("San Francisco", 9, 'bold'), image=plus_img, compound='left', relief=tk.RIDGE, width=218, height=25, command=lambda: add_to_student_list(student_list_lastname_entry, student_list_firstname_entry, student_list_box))
 add_to_student_list_btn.grid(row=2, column=0, columnspan=2, padx=10, pady=5)
 
-student_list_box_frame = tk.Frame(student_list_frame)
-student_list_box_frame.grid(row=3, pady=(5, 10))
+# s
 
-class_selector = 
+student_list_box_frame = tk.Frame(student_list_frame)
+student_list_box_frame.grid(row=4, pady=(5, 10))
 
 student_list_box = tk.Listbox(student_list_box_frame, height=20, width=34)
 student_list_box.pack(side='left', fill='y', padx=(7,0))
