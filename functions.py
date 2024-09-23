@@ -15,11 +15,11 @@ def add_desk(canvas, grid_size, tag_generator, drag_manager, move_btn, rotate_bt
     width, height = 8 * grid_size, 4 * grid_size
     x2, y2 = x1 + width, y1 + height
     
-    move_btn.config(relief=tk.SUNKEN)
+    move_btn.state(['pressed'])
     drag_manager.move_mode = True
-    rotate_btn.config(relief=tk.RIDGE)
+    rotate_btn.state(['!pressed'])
     drag_manager.rotate_mode = False
-    delete_btn.config(relief=tk.RIDGE)
+    delete_btn.state(['!pressed'])
     drag_manager.delete_mode = False
 
     tag = tag_generator.next_tag()
@@ -35,11 +35,11 @@ def add_student(canvas, grid_size, tag_generator, drag_manager, move_btn, rotate
     width, height = 4 * grid_size, 2 * grid_size
     x2, y2 = x1 + width, y1 + height
 
-    move_btn.config(relief=tk.SUNKEN)
+    move_btn.state(['pressed'])
     drag_manager.move_mode = True
-    rotate_btn.config(relief=tk.RIDGE)
+    rotate_btn.state(['!pressed'])
     drag_manager.rotate_mode = False
-    delete_btn.config(relief=tk.RIDGE)
+    delete_btn.state(['!pressed'])
     drag_manager.delete_mode = False
     
     tag = tag_generator.next_tag()
@@ -51,42 +51,42 @@ def add_student(canvas, grid_size, tag_generator, drag_manager, move_btn, rotate
     drag_manager.add_draggable(tag)
 
 def rotate(drag_manager, move_btn, rotate_btn, delete_btn):
-    move_btn.config(relief=tk.RIDGE)
+    move_btn.state(['!pressed'])
     drag_manager.move_mode = False
-    delete_btn.config(relief=tk.RIDGE)
+    delete_btn.state(['!pressed'])
     drag_manager.delete_mode = False
     
     if drag_manager.rotate_mode == False:
-        rotate_btn.config(relief=tk.SUNKEN)
+        rotate_btn.state(['pressed'])
         drag_manager.rotate_mode = True
     elif drag_manager.rotate_mode == True:
-        rotate_btn.config(relief=tk.RAISED)
+        rotate_btn.state(['!pressed'])
         drag_manager.rotate_mode = False
 
 def delete(drag_manager, move_btn, rotate_btn, delete_btn):
-    move_btn.config(relief=tk.RIDGE)
+    move_btn.state(['!pressed'])
     drag_manager.move_mode = False
-    rotate_btn.config(relief=tk.RIDGE)
+    rotate_btn.state(['!pressed'])
     drag_manager.rotate_mode = False
 
     if drag_manager.delete_mode == False:
-        delete_btn.config(relief=tk.SUNKEN)
+        delete_btn.state(['pressed'])
         drag_manager.delete_mode = True
     elif drag_manager.delete_mode == True:
-        delete_btn.config(relief=tk.RAISED)
+        delete_btn.state(['!pressed'])
         drag_manager.delete_mode = False
 
 def move(drag_manager, move_btn, rotate_btn, delete_btn):
-    rotate_btn.config(relief=tk.RIDGE)
+    rotate_btn.state(['!pressed'])
     drag_manager.rotate_mode = False
-    delete_btn.config(relief=tk.RIDGE)
+    delete_btn.state(['!pressed'])
     drag_manager.delete_mode = False
     
     if drag_manager.move_mode == False:
-        move_btn.config(relief=tk.SUNKEN)
+        move_btn.state(['pressed'])
         drag_manager.move_mode = True
     elif drag_manager.move_mode == True:
-        move_btn.config(relief=tk.RIDGE)
+        move_btn.state(['!pressed'])
         drag_manager.move_mode = False
 
 def add_to_student_list(student_list_lastname_entry, student_list_firstname_entry, student_list_box):
