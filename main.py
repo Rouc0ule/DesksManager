@@ -83,10 +83,10 @@ student_list_box_frame = tk.Frame(student_list_frame)
 student_list_box_frame.pack(fill='x', pady=(5, 10))
 
 student_list_box = tk.Listbox(student_list_box_frame, height=20, width=34)
-student_list_box.pack(side='left', fill='y', padx=(7,0))
+student_list_box.pack(side='left', fill='x', padx=(7,0))
 
 student_list_scrollbar = ttk.Scrollbar(student_list_box_frame, orient='vertical')
-student_list_scrollbar.pack(side='right', fill='y')
+student_list_scrollbar.pack(side='left', fill='y')
 
 student_list_box.config(yscrollcommand=student_list_scrollbar.set)
 student_list_scrollbar.config(command=student_list_box.yview)
