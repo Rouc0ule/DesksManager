@@ -21,6 +21,9 @@ theme = 'light'
 grid_size = 20
 number_of_items = 0
 
+home_img = ImageTk.PhotoImage(Image.open("Assets/{}_house_fill.png".format(theme)).resize((30,30)))
+edit_img = ImageTk.PhotoImage(Image.open("Assets/{}_pencil.png".format(theme)).resize((30,30)))
+
 add_desk_img = ImageTk.PhotoImage(Image.open("Assets/{}_plus_rectangle.png".format(theme)).resize((25,25)))
 add_student_img = ImageTk.PhotoImage(Image.open("Assets/{}_person_badge_plus_fill.png".format(theme)).resize((25,25)))
 delete_img = ImageTk.PhotoImage(Image.open("Assets/{}_delete.png".format(theme)).resize((25,25)))
@@ -31,7 +34,19 @@ plus_img = ImageTk.PhotoImage(Image.open("Assets/{}_plus_circle.png".format(them
 left_frame = tk.Frame(root)
 left_frame.pack(side='left', padx=(20, 10))
 
-control_frame = tk.LabelFrame(left_frame, text='Commands', width=400)
+selection_bar = tk.Frame(root)
+selection_bar.pack(side='left', fill='y')
+
+home_btn = tk.Button(selection_bar, image=home_img, relief=tk.FLAT).pack(fill='both')
+edit_btn = tk.Button(selection_bar, image=edit_img, relief=tk.FLAT).pack(fill='both')
+
+home_frame = tk.Frame(left_frame)
+# home_frame.pack(fill='x')
+
+edit_frame = tk.Frame(left_frame)
+edit_frame.pack(fill='x')
+
+control_frame = tk.LabelFrame(edit_frame, text='Commands', width=400)
 control_frame.pack()
 
 control_topframe = tk.Frame(control_frame)
@@ -61,7 +76,7 @@ delete_btn.pack(side='right', padx=(5, 10), pady=(5,10))
 # size_btn = tk.Button(control_frame, text='Size', font=("San Francisco", 9, 'bold'), command=size)
 # size_btn.grid(row=3, column=0, columnspan=2, padx=10, pady=5)
 
-student_list_frame = tk.LabelFrame(left_frame, text='List')
+student_list_frame = tk.LabelFrame(edit_frame, text='List')
 student_list_frame.pack()
 
 student_list_topframe = tk.Frame(student_list_frame)
