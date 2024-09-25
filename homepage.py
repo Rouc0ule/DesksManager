@@ -97,16 +97,22 @@ class homePage:
         canvas = tk.Canvas(frame, width=360, height=100, highlightthickness=0)
         canvas.pack(fill=tk.BOTH, expand=True)
 
-        rect = self.rounded_rectangle(canvas, 14, 12, 340, 80, fill='lightgray', tags='class_rect')
+        # Stocker les dimensions originales
+        original_dims = (14, 12, 340, 80)
+        rect = self.rounded_rectangle(canvas, *original_dims, fill='lightgray', tags='class_rect')
         canvas.create_text(50, 40, text=classe, font=("San Francisco", 20, 'bold'), tags='class_text')
         canvas.create_text(60, 70, text=f"{nb_students} élèves", font=("San Francisco", 12), tags='class_text')
 
-        canvas.tag_bind('class_rect', '<Enter>', lambda e: self.on_hover(e, canvas))
-        canvas.tag_bind('class_rect', '<Leave>', lambda e: self.on_leave(e, canvas))
-        canvas.tag_bind('class_text', '<Enter>', lambda e: self.on_hover(e, canvas))
-        canvas.tag_bind('class_text', '<Leave>', lambda e: self.on_leave(e, canvas))
+        # Stocker les dimensions originales dans le canvas pour y accéder plus tard
+        canvas.original_dims = original_dims
+
+        canvas.tag_bind('class_rect', '<Enter>', lambda e: self.on_class_hover(e, canvas))
+        canvas.tag_bind('class_rect', '<Leave>', lambda e: self.on_class_leave(e, canvas))
+        canvas.tag_bind('class_text', '<Enter>', lambda e: self.on_class_hover(e, canvas))
+        canvas.tag_bind('class_text', '<Leave>', lambda e: self.on_class_leave(e, canvas))
 
         return frame
+
 
 
     def rounded_rectangle(self, canvas, x, y, width, height, r=25, **kwargs):
@@ -160,6 +166,34 @@ class homePage:
     def on_leave(self, event, canvas):
         canvas.itemconfig('class_rect', fill='lightgray')
         canvas.config(cursor="")
+
+    def on_class_hover(self, event, canvas):
+        # Ajoutez une vérification pour éviter les appels récursifs
+        if not hasattr(canvas, 'is_hovering') or not canvas.is_hovering:
+            canvas.is_hovering = True
+            # Augmenter légèrement la taille du rectangle
+            x, y, width, height = canvas.original_dims
+            grow = 5  # Nombre de pixels pour l'agrandissement
+            new_dims = (x-grow, y-grow, width+2*grow, height+2*grow)
+            
+            canvas.delete('class_rect')  # Supprimer l'ancien rectangle
+            self.rounded_rectangle(canvas, *new_dims, fill='#a0a0a0', tags='class_rect')
+            
+            canvas.config(cursor="hand2")
+            canvas.tag_raise('class_text')  # S'assurer que le texte reste au-dessus du rectangle
+
+    def on_class_leave(self, event, canvas):
+        # Ajoutez une vérification pour éviter les appels récursifs
+        if hasattr(canvas, 'is_hovering') and canvas.is_hovering:
+            canvas.is_hovering = False
+            # Restaurer la taille originale du rectangle
+            canvas.delete('class_rect')  # Supprimer le rectangle agrandi
+            self.rounded_rectangle(canvas, *canvas.original_dims, fill='lightgray', tags='class_rect')
+            
+            canvas.config(cursor="")
+            canvas.tag_raise('class_text')  # S'assurer que le texte reste au-dessus du rectangle
+
+
 
     def on_searchbar_hover(self, event):
         self.searchbar_canvas.itemconfig('searchbar_rect', fill='#a0a0a0')
