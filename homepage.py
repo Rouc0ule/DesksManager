@@ -209,7 +209,7 @@ class homePage:
         self.searchbar_canvas.itemconfig('searchbar_rect', fill='#a0a0a0')
         self.searchbar_entry.config(bg='#a0a0a0')
         self.searchbar_canvas.itemconfig('searchbar_btn', image=self.search_img)
-        self.searchbar_canvas.config(cursor="hand2")
+        self.searchbar_canvas.config(cursor="xterm")
 
     def on_searchbar_leave(self, event):
         x, y = self.searchbar_canvas.winfo_pointerxy()
