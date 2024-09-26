@@ -32,3 +32,30 @@ class DataManager:
                 classes[i] = updated_class
                 break
         self.save_classes(classes)
+
+    def get_class_details(self, class_name):
+        classes = self.load_classes()
+        for classe in classes:
+            if classe['name'] == class_name:
+                return classe
+        return None
+
+    def add_student(self, class_name, student):
+        classes = self.load_classes()
+        for classe in classes:
+            if classe['name'] == class_name:
+                if 'students_list' not in classe:
+                    classe['students_list'] = []
+                classe['students_list'].append(student)
+                classe['students'] = len(classe['students_list'])
+                break
+        self.save_classes(classes)
+
+    def remove_student(self, class_name, student_name):
+        classes = self.load_classes()
+        for classe in classes:
+            if classe['name'] == class_name:
+                classe['students_list'] = [s for s in classe['students_list'] if s['firstname'] + ' ' + s['lastname'] != student_name]
+                classe['students'] = len(classe['students_list'])
+                break
+        self.save_classes(classes)

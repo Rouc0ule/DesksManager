@@ -1,14 +1,20 @@
 [
   {
-    "name": "6e3",
-    "students": 35
+    "name": "3e4",
+    "students": 43,
+    "students_list": [
+      {
+        "firstname": "John",
+        "lastname": "Doe"
+      },
+      {
+        "firstname": "Jane",
+        "lastname": "Smith"
+      }
+    ]
   },
   {
-    "name": "3e3",
-    "students": 32
-  },
-  {
-    "name": "6e4",
-    "students": 234
+    "name": "123",
+    "students": 123
   }
 ]

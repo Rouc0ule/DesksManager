@@ -15,6 +15,7 @@ class homePage:
         # WIDGETS
 
         self.leftframe = tk.Frame(self.root, width=400, highlightbackground="lightgray", highlightthickness=1)
+        self.rightframe = tk.Frame(self.root, width=400, highlightbackground="lightgray", highlightthickness=1)
 
         # Canvas Searchbar
 
@@ -67,8 +68,9 @@ class homePage:
 
     def pack(self):
         self.leftframe.pack(fill='y', side='left')
-        self.searchbar_canvas.pack(fill='x')
+        self.rightframe.pack(fill='both', expand=True, side='right')
 
+        self.searchbar_canvas.pack(fill='x')
         self.scrollable_frame.pack(fill='both', expand=True)
         self.scrollable_list_canvas.pack(side='left', fill='both', expand=True)
         self.scrollable_scrollbar.pack(side='right', fill='y')
@@ -77,25 +79,25 @@ class homePage:
     
     def searchbar_rounded_rectangle(self, x, y, width, height, r=25, **kwargs):    
         points = [x+r, y,
-              x+r, y,
-              x+width-r, y,
-              x+width-r, y,
-              x+width, y,
-              x+width, y+r,
-              x+width, y+r,
-              x+width, y+height-r,
-              x+width, y+height-r,
-              x+width, y+height,
-              x+width-r, y+height,
-              x+width-r, y+height,
-              x+r, y+height,
-              x+r, y+height,
-              x, y+height,
-              x, y+height-r,
-              x, y+height-r,
-              x, y+r,
-              x, y+r,
-              x, y]
+                x+r, y,
+                x+width-r, y,
+                x+width-r, y,
+                x+width, y,
+                x+width, y+r,
+                x+width, y+r,
+                x+width, y+height-r,
+                x+width, y+height-r,
+                x+width, y+height,
+                x+width-r, y+height,
+                x+width-r, y+height,
+                x+r, y+height,
+                x+r, y+height,
+                x, y+height,
+                x, y+height-r,
+                x, y+height-r,
+                x, y+r,
+                x, y+r,
+                x, y]
         return self.searchbar_canvas.create_polygon(points, **kwargs, smooth=True)
 
     def add_class(self, classe, nb_students):
@@ -125,6 +127,8 @@ class homePage:
 
         frame.bind("<MouseWheel>", self._on_mousewheel)
         canvas.bind("<MouseWheel>", self._on_mousewheel)
+        canvas.tag_bind('class_rect', '<Button-1>', lambda e, c=classe: self.display_class_details(c))
+        canvas.tag_bind('class_text', '<Button-1>', lambda e, c=classe: self.display_class_details(c))
 
         return frame
 
@@ -266,3 +270,42 @@ class homePage:
         # Reconfigurer le scrollable frame
         self._configure_interior()
         self.on_frame_configure()
+
+
+    def display_class_details(self, classe):
+        # Effacez le contenu précédent
+        for widget in self.rightframe.winfo_children():
+            widget.destroy()
+
+        # Créez un cadre interne pour contenir tous les widgets
+        inner_frame = tk.Frame(self.rightframe)
+        inner_frame.pack(fill='both', expand=True, padx=20, pady=20)
+
+        # Affichez le nom de la classe
+        tk.Label(inner_frame, text=classe, font=("San Francisco", 24, 'bold'), anchor='w', justify='left').pack(fill='x', pady=(0, 20))
+
+        # Récupérez les détails de la classe depuis le gestionnaire de données
+        class_details = self.data_manager.get_class_details(classe)
+
+        if class_details:
+            # Affichez le nombre d'élèves
+            tk.Label(inner_frame, text=f"Nombre d'élèves: {class_details['students']}", font=("San Francisco", 18), anchor='w', justify='left').pack(fill='x', pady=(0, 10))
+
+            # Affichez la liste des élèves
+            tk.Label(inner_frame, text="Liste des élèves:", font=("San Francisco", 18), anchor='w', justify='left').pack(fill='x', pady=(0, 10))
+            if 'students_list' in class_details and isinstance(class_details['students_list'], list):
+                for student in class_details['students_list']:
+                    tk.Label(inner_frame, text=f"{student['firstname']} {student['lastname']}", font=("San Francisco", 14), anchor='w', justify='left').pack(fill='x')
+            else:
+                tk.Label(inner_frame, text="Aucun détail d'élève disponible", font=("San Francisco", 14), anchor='w', justify='left').pack(fill='x')
+        else:
+            tk.Label(inner_frame, text="Aucun détail disponible pour cette classe", font=("San Francisco", 14), anchor='w', justify='left').pack(fill='x')
+
+
+    def get_class_details(self, class_name):
+        classes = self.load_classes()
+        for classe in classes:
+            if classe['name'] == class_name:
+                return classe
+        return None
+
