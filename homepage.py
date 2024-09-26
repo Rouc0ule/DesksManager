@@ -13,7 +13,7 @@ class homePage:
 
         # Canvas Searchbar
 
-        self.searchbar_canvas = tk.Canvas(self.leftframe, height=70, width=380, highlightthickness=0)
+        self.searchbar_canvas = tk.Canvas(self.leftframe, height=70, width=380, highlightthickness=1)
         self.searchbar_rect = self.rounded_rectangle(self.searchbar_canvas, 12, 12, 360, 50, fill='lightgray', tags='searchbar_rect')
         self.searchbar_entry = tk.Entry(font=("San Francisco", 15), width=25, relief=tk.FLAT, bg='lightgray')
         self.searchbar_entry_window = self.searchbar_canvas.create_window(167, 37, window=self.searchbar_entry, tags='searchbar_entry')
@@ -111,17 +111,13 @@ class homePage:
         return frame
 
     def create_add_button(self):
-        # Créer le cercle à gauche
         circle = self.create_circle(self.add_btn_canvas, 40, 40, 25, fill='lightgray', outline='', tags='add_btn_circle')
         
-        # Ajouter le signe '+' avec un tag séparé
         self.add_btn_canvas.create_text(40, 40, text='+', font=('San Francisco', 30), tags='add_btn_text')
         
-        # Grouper les tags pour les événements
         self.add_btn_canvas.addtag_withtag('add_btn', 'add_btn_circle')
         self.add_btn_canvas.addtag_withtag('add_btn', 'add_btn_text')
         
-        # Lier les événements
         self.add_btn_canvas.tag_bind('add_btn', '<Enter>', self.on_add_btn_hover)
         self.add_btn_canvas.tag_bind('add_btn', '<Leave>', self.on_add_btn_leave)
         self.add_btn_canvas.tag_bind('add_btn', '<Button-1>', self.on_add_btn_click)
@@ -229,14 +225,13 @@ class homePage:
 
     def on_add_btn_hover(self, event):
         self.add_btn_canvas.itemconfig('add_btn_circle', fill='#a0a0a0')
-        self.add_btn_canvas.itemconfig('add_btn_text', fill='black')  # Change la couleur du texte
+        self.add_btn_canvas.itemconfig('add_btn_text', fill='black')
         self.add_btn_canvas.config(cursor="hand2")
 
     def on_add_btn_leave(self, event):
         self.add_btn_canvas.itemconfig('add_btn_circle', fill='lightgray')
-        self.add_btn_canvas.itemconfig('add_btn_text', fill='black')  # Restaure la couleur du texte
+        self.add_btn_canvas.itemconfig('add_btn_text', fill='black')
         self.add_btn_canvas.config(cursor="")
 
     def on_add_btn_click(self, event):
         print("Bouton d'ajout cliqué!")
-        # Ajoutez ici la logique pour ajouter une nouvelle classe
