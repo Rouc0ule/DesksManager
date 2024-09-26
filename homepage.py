@@ -6,6 +6,7 @@ class homePage:
         self.root = root
 
         self.search_img = ImageTk.PhotoImage(Image.open("Assets/{}_search.png".format(theme)).resize((25,25)))
+        self.trash_img = ImageTk.PhotoImage(Image.open("Assets/{}_delete.png".format(theme)).resize((25,25)))
 
         # WIDGETS
 
@@ -15,9 +16,9 @@ class homePage:
 
         self.searchbar_canvas = tk.Canvas(self.leftframe, height=70, width=380, highlightthickness=0)
         self.searchbar_rect = self.rounded_rectangle(self.searchbar_canvas, 12, 12, 360, 50, fill='lightgray', tags='searchbar_rect')
-        self.searchbar_entry = tk.Entry(font=("San Francisco", 15), width=25, relief=tk.FLAT, border=0, bg='lightgray')
+        self.searchbar_entry = tk.Entry(font=("San Francisco", 15), width=25, relief=tk.FLAT, highlightthickness=0, bg='lightgray')
         self.searchbar_entry_window = self.searchbar_canvas.create_window(167, 37, window=self.searchbar_entry, tags='searchbar_entry')
-        self.searchbar_btn = tk.Button(image=self.search_img, relief=tk.FLAT, border=0, bg='lightgray')
+        self.searchbar_btn = tk.Button(image=self.search_img, relief=tk.FLAT, highlightthickness=0, bg='lightgray')
         self.searchbar_btn_window = self.searchbar_canvas.create_window(342, 37, window=self.searchbar_btn, tags='searchbar_btn')
 
         for item in [self.searchbar_canvas, self.searchbar_entry, self.searchbar_btn]:
@@ -96,6 +97,8 @@ class homePage:
         rect = self.rounded_rectangle(canvas, *original_dims, fill='lightgray', tags='class_rect')
         canvas.create_text(50, 40, text=classe, font=("San Francisco", 20, 'bold'), tags='class_text')
         canvas.create_text(60, 70, text=f"{nb_students} élèves", font=("San Francisco", 12), tags='class_text')
+        self.trash_btn = tk.Button(image=self.trash_img, relief=tk.FLAT, highlightthickness=0, bg='lightgray')
+        canvas.create_window(100, 40, window=self.trash_btn)
 
         canvas.original_dims = original_dims
 
