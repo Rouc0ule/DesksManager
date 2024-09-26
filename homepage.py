@@ -15,9 +15,9 @@ class homePage:
 
         self.searchbar_canvas = tk.Canvas(self.leftframe, height=70, width=380, highlightthickness=0)
         self.searchbar_rect = self.rounded_rectangle(self.searchbar_canvas, 12, 12, 360, 50, fill='lightgray', tags='searchbar_rect')
-        self.searchbar_entry = tk.Entry(font=("San Francisco", 15), width=25, relief=tk.FLAT, bg='lightgray')
+        self.searchbar_entry = tk.Entry(font=("San Francisco", 15), width=25, relief=tk.FLAT, border=0, bg='lightgray')
         self.searchbar_entry_window = self.searchbar_canvas.create_window(167, 37, window=self.searchbar_entry, tags='searchbar_entry')
-        self.searchbar_btn = tk.Button(image=self.search_img, relief=tk.FLAT, bg='lightgray')
+        self.searchbar_btn = tk.Button(image=self.search_img, relief=tk.FLAT, border=0, bg='lightgray')
         self.searchbar_btn_window = self.searchbar_canvas.create_window(342, 37, window=self.searchbar_btn, tags='searchbar_btn')
 
         for item in [self.searchbar_canvas, self.searchbar_entry, self.searchbar_btn]:
@@ -37,8 +37,7 @@ class homePage:
         self.scrollable_list_canvas.xview_moveto(0)
         self.scrollable_list_canvas.yview_moveto(0)
 
-        for classe, nb_students in [('3°4', 43), ('6°3', 35), ('4°1', 38), ('5°6', 40),
-                                    ('3°4', 43), ('6°3', 35), ('4°1', 38), ('5°6', 40)]:
+        for classe, nb_students in [('3°4', 43), ('6°3', 35), ('4°1', 38), ('5°6', 40)]:
             self.add_class(classe, nb_students)
 
         # Searchbar
@@ -164,14 +163,6 @@ class homePage:
     def on_canvas_configure(self, event):
         width = event.width
         self.scrollable_list_canvas.itemconfig(self.scrollable_list_frame_id, width=width)
-
-    def on_hover(self, event, canvas):
-        canvas.itemconfig('class_rect', fill='#a0a0a0')
-        canvas.config(cursor="hand2")
-
-    def on_leave(self, event, canvas):
-        canvas.itemconfig('class_rect', fill='lightgray')
-        canvas.config(cursor="")
 
     def on_class_hover(self, event, canvas):
         if not hasattr(canvas, 'is_hovering') or not canvas.is_hovering:
