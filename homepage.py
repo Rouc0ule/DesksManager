@@ -42,7 +42,7 @@ class homePage:
             self.add_class(classe, nb_students)
 
         # Searchbar
-        self.add_btn_canvas = tk.Canvas(self.leftframe, height=70, width=380, highlightthickness=0)
+        self.add_btn_canvas = tk.Canvas(self.leftframe, height=80, width=380, highlightthickness=0)
         self.create_add_button()
         
         self.scrollable_list_frame.bind('<Configure>', self._configure_interior)
@@ -51,7 +51,6 @@ class homePage:
         self.scrollable_list_canvas.bind('<Configure>', self.on_canvas_configure)
         self.scrollable_list_canvas.bind("<MouseWheel>", self._on_mousewheel)
         self.scrollable_list_frame.bind("<MouseWheel>", self._on_mousewheel)
-
 
     def pack(self):
         self.leftframe.pack(fill='y', side='left')
@@ -113,10 +112,10 @@ class homePage:
 
     def create_add_button(self):
         # Créer le cercle à gauche
-        circle = self.create_circle(self.add_btn_canvas, 35, 35, 25, fill='lightgray', outline='', tags='add_btn_circle')
+        circle = self.create_circle(self.add_btn_canvas, 40, 40, 25, fill='lightgray', outline='', tags='add_btn_circle')
         
         # Ajouter le signe '+' avec un tag séparé
-        self.add_btn_canvas.create_text(35, 35, text='+', font=('San Francisco', 30), tags='add_btn_text')
+        self.add_btn_canvas.create_text(40, 40, text='+', font=('San Francisco', 30), tags='add_btn_text')
         
         # Grouper les tags pour les événements
         self.add_btn_canvas.addtag_withtag('add_btn', 'add_btn_circle')
@@ -201,8 +200,6 @@ class homePage:
             
             canvas.config(cursor="")
             canvas.tag_raise('class_text')
-
-
 
     def on_searchbar_hover(self, event):
         self.searchbar_canvas.itemconfig('searchbar_rect', fill='#a0a0a0')
