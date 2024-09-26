@@ -13,7 +13,7 @@ class homePage:
 
         # Canvas Searchbar
 
-        self.searchbar_canvas = tk.Canvas(self.leftframe, height=70, width=380, highlightthickness=1)
+        self.searchbar_canvas = tk.Canvas(self.leftframe, height=70, width=380, highlightthickness=0)
         self.searchbar_rect = self.rounded_rectangle(self.searchbar_canvas, 12, 12, 360, 50, fill='lightgray', tags='searchbar_rect')
         self.searchbar_entry = tk.Entry(font=("San Francisco", 15), width=25, relief=tk.FLAT, bg='lightgray')
         self.searchbar_entry_window = self.searchbar_canvas.create_window(167, 37, window=self.searchbar_entry, tags='searchbar_entry')
