@@ -1,9 +1,13 @@
 import tkinter as tk
+from tkinter import simpledialog
 from PIL import ImageTk, Image
+from dataManager import DataManager
 
 class homePage:
     def __init__(self, root, theme):
         self.root = root
+
+        self.data_manager = DataManager('Json/classes.json')
 
         self.search_img = ImageTk.PhotoImage(Image.open("Assets/{}_search.png".format(theme)).resize((25,25)))
         self.trash_img = ImageTk.PhotoImage(Image.open("Assets/{}_delete.png".format(theme)).resize((25,25)))
@@ -18,13 +22,19 @@ class homePage:
         self.searchbar_rect = self.rounded_rectangle(self.searchbar_canvas, 12, 12, 360, 50, fill='lightgray', tags='searchbar_rect')
         self.searchbar_entry = tk.Entry(font=("San Francisco", 15), width=25, relief=tk.FLAT, highlightthickness=0, bg='lightgray')
         self.searchbar_entry_window = self.searchbar_canvas.create_window(167, 37, window=self.searchbar_entry, tags='searchbar_entry')
-        self.searchbar_btn = tk.Button(image=self.search_img, relief=tk.FLAT, highlightthickness=0, bg='lightgray')
-        self.searchbar_btn_window = self.searchbar_canvas.create_window(342, 37, window=self.searchbar_btn, tags='searchbar_btn')
+        self.searchbar_btn = self.searchbar_canvas.create_image(342, 37, image=self.search_img, tags='searchbar_btn')
 
-        for item in [self.searchbar_canvas, self.searchbar_entry, self.searchbar_btn]:
-            item.bind('<Enter>', self.on_searchbar_hover)
-            item.bind('<Leave>', self.on_searchbar_leave)
-            item.bind('<Button-1>', self.on_searchbar_click)
+        self.searchbar_canvas.bind('<Enter>', self.on_searchbar_hover)
+        self.searchbar_canvas.bind('<Leave>', self.on_searchbar_leave)
+        self.searchbar_canvas.bind('<Button-1>', self.on_searchbar_click)
+
+        self.searchbar_entry.bind('<Enter>', self.on_searchbar_hover)
+        self.searchbar_entry.bind('<Leave>', self.on_searchbar_leave)
+        self.searchbar_entry.bind('<Button-1>', self.on_searchbar_click)
+
+        self.searchbar_canvas.tag_bind('searchbar_btn', '<Enter>', self.on_searchbar_hover)
+        self.searchbar_canvas.tag_bind('searchbar_btn', '<Leave>', self.on_searchbar_leave)
+        self.searchbar_canvas.tag_bind('searchbar_btn', '<Button-1>', self.on_searchbar_click)
 
         # Scrollable Frame
 
@@ -38,8 +48,9 @@ class homePage:
         self.scrollable_list_canvas.xview_moveto(0)
         self.scrollable_list_canvas.yview_moveto(0)
 
-        for classe, nb_students in [('3°4', 43), ('6°3', 35), ('4°1', 38), ('5°6', 40)]:
-            self.add_class(classe, nb_students)
+        classes = self.data_manager.load_classes()
+        for classe in classes:
+            self.add_class(classe['name'], classe['students'])
 
         # Searchbar
         self.add_btn_canvas = tk.Canvas(self.leftframe, height=80, width=380, highlightthickness=0)
@@ -51,6 +62,8 @@ class homePage:
         self.scrollable_list_canvas.bind('<Configure>', self.on_canvas_configure)
         self.scrollable_list_canvas.bind("<MouseWheel>", self._on_mousewheel)
         self.scrollable_list_frame.bind("<MouseWheel>", self._on_mousewheel)
+
+        self._configure_interior()
 
     def pack(self):
         self.leftframe.pack(fill='y', side='left')
@@ -97,10 +110,13 @@ class homePage:
         rect = self.rounded_rectangle(canvas, *original_dims, fill='lightgray', tags='class_rect')
         canvas.create_text(50, 40, text=classe, font=("San Francisco", 20, 'bold'), tags='class_text')
         canvas.create_text(60, 70, text=f"{nb_students} élèves", font=("San Francisco", 12), tags='class_text')
-        self.trash_btn = tk.Button(image=self.trash_img, relief=tk.FLAT, highlightthickness=0, bg='lightgray')
-        canvas.create_window(100, 40, window=self.trash_btn)
+        canvas.create_image(332, 70, image=self.trash_img, tags='trash_btn')
 
         canvas.original_dims = original_dims
+
+        canvas.tag_bind('trash_btn', '<Enter>', lambda e: canvas.config(cursor="hand2"))
+        canvas.tag_bind('trash_btn', '<Leave>', lambda e: canvas.config(cursor=""))
+        canvas.tag_bind('trash_btn', '<Button-1>', lambda e: self.on_trash_click(classe))
 
         canvas.tag_bind('class_rect', '<Enter>', lambda e: self.on_class_hover(e, canvas))
         canvas.tag_bind('class_rect', '<Leave>', lambda e: self.on_class_leave(e, canvas))
@@ -122,7 +138,7 @@ class homePage:
         
         self.add_btn_canvas.tag_bind('add_btn', '<Enter>', self.on_add_btn_hover)
         self.add_btn_canvas.tag_bind('add_btn', '<Leave>', self.on_add_btn_leave)
-        self.add_btn_canvas.tag_bind('add_btn', '<Button-1>', self.on_add_btn_click)
+        self.add_btn_canvas.tag_bind('add_btn', '<Button-1>', self.add_new_class)
 
     def rounded_rectangle(self, canvas, x, y, width, height, r=25, **kwargs):
         points = [x+r, y,
@@ -170,48 +186,46 @@ class homePage:
     def on_class_hover(self, event, canvas):
         if not hasattr(canvas, 'is_hovering') or not canvas.is_hovering:
             canvas.is_hovering = True
-
             x, y, width, height = canvas.original_dims
-            grow = 5  
+            grow = 5
             new_dims = (x-grow, y-grow, width+2*grow, height+2*grow)
-            
             canvas.delete('class_rect')
             self.rounded_rectangle(canvas, *new_dims, fill='#a0a0a0', tags='class_rect')
-            
             canvas.config(cursor="hand2")
             canvas.tag_raise('class_text')
+            canvas.tag_raise('trash_btn')
 
     def on_class_leave(self, event, canvas):
         if hasattr(canvas, 'is_hovering') and canvas.is_hovering:
             canvas.is_hovering = False
-            
-            canvas.delete('class_rect') 
+            canvas.delete('class_rect')
             self.rounded_rectangle(canvas, *canvas.original_dims, fill='lightgray', tags='class_rect')
-            
             canvas.config(cursor="")
             canvas.tag_raise('class_text')
+            canvas.tag_raise('trash_btn')
+
 
     def on_searchbar_hover(self, event):
         self.searchbar_canvas.itemconfig('searchbar_rect', fill='#a0a0a0')
         self.searchbar_entry.config(bg='#a0a0a0')
-        self.searchbar_btn.config(bg='#a0a0a0')
+        self.searchbar_canvas.itemconfig('searchbar_btn', image=self.search_img)
         self.searchbar_canvas.config(cursor="hand2")
-        self.searchbar_btn.config(cursor="hand2")
 
     def on_searchbar_leave(self, event):
         x, y = self.searchbar_canvas.winfo_pointerxy()
         widget_under_cursor = self.searchbar_canvas.winfo_containing(x, y)
-        if widget_under_cursor in [self.searchbar_canvas, self.searchbar_entry, self.searchbar_btn]:
+        if widget_under_cursor in [self.searchbar_canvas, self.searchbar_entry]:
             return
-
         self.searchbar_canvas.itemconfig('searchbar_rect', fill='lightgray')
         self.searchbar_entry.config(bg='lightgray')
-        self.searchbar_btn.config(bg='lightgray')
+        self.searchbar_canvas.itemconfig('searchbar_btn', image=self.search_img)
         self.searchbar_canvas.config(cursor="")
-        self.searchbar_btn.config(cursor="")
 
     def on_searchbar_click(self, event):
-        self.searchbar_entry.focus_set()
+        if event.widget == self.searchbar_entry:
+            self.searchbar_entry.focus_set()
+        elif 'searchbar_btn' in self.searchbar_canvas.gettags('current'):
+            print("Search button clicked!")
         self.on_searchbar_hover(event)
 
     def _on_mousewheel(self, event):
@@ -227,5 +241,28 @@ class homePage:
         self.add_btn_canvas.itemconfig('add_btn_text', fill='black')
         self.add_btn_canvas.config(cursor="")
 
-    def on_add_btn_click(self, event):
-        print("Bouton d'ajout cliqué!")
+    def add_new_class(self, event):
+        name = simpledialog.askstring("Nouvelle classe", "Nom de la classe:")
+        if name:
+            students = simpledialog.askinteger("Nouvelle classe", "Nombre d'élèves:")
+            if students is not None:
+                new_class = {"name": name, "students": students}
+                self.data_manager.add_class(new_class)
+                self.add_class(name, students)
+
+    def on_trash_click(self, classe):
+        print(f"Suppression de la classe {classe}")
+        self.data_manager.remove_class(classe)
+        
+        # Supprimer visuellement la classe
+        for widget in self.scrollable_list_frame.winfo_children():
+            canvas = widget.winfo_children()[0]
+            if canvas.type('class_text') == 'text':
+                text_item = canvas.find_withtag('class_text')[0]
+                if canvas.itemcget(text_item, 'text') == classe:
+                    widget.destroy()
+                    break
+        
+        # Reconfigurer le scrollable frame
+        self._configure_interior()
+        self.on_frame_configure()
