@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import simpledialog
+from tkinter import simpledialog, messagebox
 from PIL import ImageTk, Image
 from dataManager import DataManager
 
@@ -11,6 +11,8 @@ class homePage:
 
         self.search_img = ImageTk.PhotoImage(Image.open("Assets/{}_search.png".format(theme)).resize((25,25)))
         self.trash_img = ImageTk.PhotoImage(Image.open("Assets/{}_delete.png".format(theme)).resize((25,25)))
+        self.edit_img = ImageTk.PhotoImage(Image.open("Assets/{}_edit.png".format(theme)).resize((20,20)))
+        self.plus_img = ImageTk.PhotoImage(Image.open(f"Assets/{theme}_plus_circle.png").resize((20, 20)))
 
         # WIDGETS
 
@@ -246,13 +248,13 @@ class homePage:
         self.add_btn_canvas.config(cursor="")
 
     def add_new_class(self, event):
-        name = simpledialog.askstring("Nouvelle classe", "Nom de la classe:")
-        if name:
-            students = simpledialog.askinteger("Nouvelle classe", "Nombre d'élèves:")
-            if students is not None:
-                new_class = {"name": name, "students": students}
-                self.data_manager.add_class(new_class)
-                self.add_class(name, students)
+        classes = self.data_manager.load_classes()
+        new_class_number = len(classes) + 1
+        new_class_name = f"Nouvelle classe {new_class_number}"
+        new_class = {"name": new_class_name, "students_list": []}
+        self.data_manager.add_class(new_class)
+        self.add_class(new_class_name, 0)
+        self.display_class_details(new_class_name)
 
     def on_trash_click(self, classe):
         print(f"Suppression de la classe {classe}")
@@ -273,39 +275,29 @@ class homePage:
 
 
     def display_class_details(self, classe):
-        # Effacez le contenu précédent
         for widget in self.rightframe.winfo_children():
             widget.destroy()
 
-        # Créez un cadre interne pour contenir tous les widgets
-        inner_frame = tk.Frame(self.rightframe)
-        inner_frame.pack(fill='both', expand=True, padx=20, pady=20)
-
-        # Affichez le nom de la classe
-        tk.Label(inner_frame, text=classe, font=("San Francisco", 24, 'bold'), anchor='w', justify='left').pack(fill='x', pady=(0, 20))
-
-        # Récupérez les détails de la classe depuis le gestionnaire de données
         class_details = self.data_manager.get_class_details(classe)
 
         if class_details:
-            # Affichez le nombre d'élèves
-            tk.Label(inner_frame, text=f"Nombre d'élèves: {class_details['students']}", font=("San Francisco", 18), anchor='w', justify='left').pack(fill='x', pady=(0, 10))
+            
+            details_frame= tk.Frame(self.rightframe, bg='blue')
+            students_frame = tk.Frame(self.rightframe, bg='red')
 
-            # Affichez la liste des élèves
-            tk.Label(inner_frame, text="Liste des élèves:", font=("San Francisco", 18), anchor='w', justify='left').pack(fill='x', pady=(0, 10))
-            if 'students_list' in class_details and isinstance(class_details['students_list'], list):
-                for student in class_details['students_list']:
-                    tk.Label(inner_frame, text=f"{student['firstname']} {student['lastname']}", font=("San Francisco", 14), anchor='w', justify='left').pack(fill='x')
-            else:
-                tk.Label(inner_frame, text="Aucun détail d'élève disponible", font=("San Francisco", 14), anchor='w', justify='left').pack(fill='x')
+            details_frame.pack(side='left', fill='both', expand=True)
+            students_frame.pack(side='right', fill='both', expand=True)
+            
+            details_canvas = tk.Canvas(details_frame)
+            details_canvas.pack(fill='both')
+            details_canvas.create_text(120, 50, text='Classe : ' + class_details.get('name', []), font=("San Francisco", 20, 'bold'))
+            details_canvas.create_text(90, 80, text=('{} élèves'.format(len(class_details.get('students_list', [])))), font=("San Francisco", 17, 'italic'))
+
+            self.student_scrollable_frame = tk.Frame()
+
         else:
-            tk.Label(inner_frame, text="Aucun détail disponible pour cette classe", font=("San Francisco", 14), anchor='w', justify='left').pack(fill='x')
+            tk.Label(self.rightframe, text="Aucun détail disponible pour cette classe", 
+                    font=("San Francisco", 14)).pack()
 
-
-    def get_class_details(self, class_name):
-        classes = self.load_classes()
-        for classe in classes:
-            if classe['name'] == class_name:
-                return classe
-        return None
-
+    def add_student(self):
+        student_canvas = tk.Canvas(self.student_scrollable_frame)
