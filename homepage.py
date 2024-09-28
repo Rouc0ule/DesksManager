@@ -272,14 +272,18 @@ class HomePage:
 
             self.create_student_list(students_frame, class_details)
 
-            self.create_rounded_button(students_frame, 0, 0, 150, 40, text='Button', icon=self.plus_img, padx=5, pady=5)
+            self.create_rounded_button(students_frame, 250, 50, text='Add Student', icon=self.plus_img, padx=5, pady=5)
 
         else:
             tk.Label(self.right_frame, text="Aucun détail disponible pour cette classe", 
                     font=("San Francisco", 14)).pack()
 
     def edit_class_name(self, classe):
-        current_name = self.data_manager.get_class_details(classe)['name']
+        class_details = self.data_manager.get_class_details(classe)
+        if class_details is None:
+            print(f"La classe {classe} n'existe plus.")
+            return
+        current_name = class_details['name']
         entry = tk.Entry(self.details_canvas, font=("San Francisco", 20, 'bold'))
         entry.insert(0, current_name)
         entry_window = self.details_canvas.create_window(50, 50, window=entry, anchor='w')
@@ -288,8 +292,9 @@ class HomePage:
             new_name = entry.get()
             if new_name and new_name != current_name:
                 self.data_manager.update_class_name(classe, new_name)
-                self.details_canvas.itemconfig(self.class_name_text, text='Classe : ' + new_name)
                 self.update_class_list()
+                self.display_class_details(class_details['name'])
+            
             self.details_canvas.delete(entry_window)
             self.details_canvas.itemconfig(self.class_name_text, state='normal')
 
@@ -302,6 +307,7 @@ class HomePage:
         for widget in self.scrollable_list_frame.winfo_children():
             widget.destroy()
         self.load_classes()
+
 
     def create_student_list(self, parent_frame, class_details):
         student_scrollable_frame = tk.Frame(parent_frame)
@@ -388,15 +394,42 @@ class HomePage:
             self.data_manager.remove_student(classe, f"{student['firstname']} {student['lastname']}")
             self.display_class_details(classe)
 
-    def create_rounded_button(self, parent, x, y, width, height, text, icon, padx=0, pady=0, command=None):
-        canvas = self.create_canvas(parent, width=width, height=height)
+    def create_rounded_button(self, parent, width, height, text, padx=0, pady=0, icon=None, command=None):
+        canvas_width , canvas_height = width + 6, height + 6
+        canvas = self.create_canvas(parent, width=canvas_width, height=canvas_height)
         canvas.pack(padx=padx, pady=pady)
-        self.rounded_rectangle(canvas, x, y, x + width, y + height, r=30, fill='lightgray', tags='capsule')
-        canvas.create_image(x + height // 2, y + height // 2, image=icon)
-        canvas.create_text(x + height + 10, y + height // 2, text=text, font=('San Francisco', 14), anchor='w')
+
+        self.rounded_rectangle(canvas, 3, 3, width, height, r=30, fill='lightgray', tags='rounded_rect')
+        canvas.create_text(canvas_width // 2, canvas_height // 2, text=text, font=('San Francisco', 14), tags='text')
+        canvas.create_image(25, canvas_height // 2, image=icon, tags='icon')
+
+        # Modifiez ces lignes pour inclure l'argument 'event'
+        canvas.tag_bind('rounded_rect', '<Enter>', lambda event: self._on_button_over(canvas, width, height))
+        canvas.tag_bind('rounded_rect', '<Leave>', lambda event: self._on_button_leave(canvas, width, height))
+        canvas.tag_bind('text', '<Enter>', lambda event: self._on_button_over(canvas, width, height))
+        canvas.tag_bind('text', '<Leave>', lambda event: self._on_button_leave(canvas, width, height))
+        canvas.tag_bind('icon', '<Enter>', lambda event: self._on_button_over(canvas, width, height))
+        canvas.tag_bind('icon', '<Leave>', lambda event: self._on_button_leave(canvas, width, height))
         
-        canvas.tag_bind('capsule', '<Enter>', lambda e: canvas.config(cursor="hand2"))
-        canvas.tag_bind('capsule', '<Leave>', lambda e: canvas.config(cursor=""))
-        canvas.tag_bind('capsule', '<Button-1>', command)
-        
+        if command:
+            canvas.tag_bind('rounded_rect', '<Button-1>', command)
+            canvas.tag_bind('text', '<Button-1>', command)
+            canvas.tag_bind('icon', '<Button-1>', command)
+
         return canvas
+
+    def _on_button_over(self, canvas, width, height):
+        if canvas.cget('cursor') != "hand2":
+            canvas.config(cursor="hand2")
+            canvas.delete('rounded_rect')
+            self.rounded_rectangle(canvas, 0, 0, width+6, height+6, r=30, fill='#a0a0a0', tags='rounded_rect')
+            canvas.tag_raise('text')
+            canvas.tag_raise('icon')
+
+    def _on_button_leave(self, canvas, width, height):
+        if canvas.cget('cursor') != "":
+            canvas.config(cursor="")
+            canvas.delete('rounded_rect')
+            self.rounded_rectangle(canvas, 3, 3, width, height, r=30, fill='lightgray', tags='rounded_rect')
+            canvas.tag_raise('text')
+            canvas.tag_raise('icon')
