@@ -17,6 +17,8 @@ class DataManager:
 
     def add_class(self, new_class):
         classes = self.load_classes()
+        if 'students_list' not in new_class:
+            new_class['students_list'] = []
         classes.append(new_class)
         self.save_classes(classes)
 
@@ -47,7 +49,6 @@ class DataManager:
                 if 'students_list' not in classe:
                     classe['students_list'] = []
                 classe['students_list'].append(student)
-                classe['students'] = len(classe['students_list'])
                 break
         self.save_classes(classes)
 
@@ -56,6 +57,5 @@ class DataManager:
         for classe in classes:
             if classe['name'] == class_name:
                 classe['students_list'] = [s for s in classe['students_list'] if s['firstname'] + ' ' + s['lastname'] != student_name]
-                classe['students'] = len(classe['students_list'])
                 break
         self.save_classes(classes)

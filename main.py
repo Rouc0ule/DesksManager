@@ -5,7 +5,7 @@ from dragManager import DragManager
 from uniqueTagGenerator import UniqueTagGenerator
 from jsonloader import JsonManager
 from functions import create_grid, add_desk, add_student, move, rotate, delete, add_to_student_list, center_window
-from homepage import homePage
+from homepage import HomePage
 #import pywinstyles
 
 def size():
@@ -29,8 +29,8 @@ rotate_img = ImageTk.PhotoImage(Image.open("Assets/{}_rotate_left.png".format(th
 move_img = ImageTk.PhotoImage(Image.open("Assets/{}_move.png".format(theme)).resize((25,25)))
 plus_img = ImageTk.PhotoImage(Image.open("Assets/{}_plus_circle.png".format(theme)).resize((25,25)))
 
-homepage = homePage(root, theme)
-homepage.pack()
+varhomepage = HomePage(root, theme)
+varhomepage.pack_widgets()
 
 # left_frame = tk.Frame(root)
 # left_frame.pack(side='left', padx=(20, 10))

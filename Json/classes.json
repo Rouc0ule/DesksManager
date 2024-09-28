@@ -1,8 +1,79 @@
 [
   {
     "name": "3e4",
-    "students": 3,
     "students_list": [
+      {
+        "firstname": "zdqdqzd",
+        "lastname": "zdqdqzd"
+      },
+      {
+        "firstname": "dqzdqzd",
+        "lastname": "zdqd"
+      },
+      {
+        "firstname": "dzqdqz",
+        "lastname": "dqzdqz"
+      },
+      {
+        "firstname": "zdqdqzd",
+        "lastname": "zdqdqzd"
+      },
+      {
+        "firstname": "dqzdqzd",
+        "lastname": "zdqd"
+      },
+      {
+        "firstname": "dzqdqz",
+        "lastname": "dqzdqz"
+      },
+      {
+        "firstname": "zdqdqzd",
+        "lastname": "zdqdqzd"
+      },
+      {
+        "firstname": "dqzdqzd",
+        "lastname": "zdqd"
+      },
+      {
+        "firstname": "dzqdqz",
+        "lastname": "dqzdqz"
+      },
+      {
+        "firstname": "zdqdqzd",
+        "lastname": "zdqdqzd"
+      },
+      {
+        "firstname": "dqzdqzd",
+        "lastname": "zdqd"
+      },
+      {
+        "firstname": "dzqdqz",
+        "lastname": "dqzdqz"
+      },
+      {
+        "firstname": "zdqdqzd",
+        "lastname": "zdqdqzd"
+      },
+      {
+        "firstname": "dqzdqzd",
+        "lastname": "zdqd"
+      },
+      {
+        "firstname": "dzqdqz",
+        "lastname": "dqzdqz"
+      },
+      {
+        "firstname": "zdqdqzd",
+        "lastname": "zdqdqzd"
+      },
+      {
+        "firstname": "dqzdqzd",
+        "lastname": "zdqd"
+      },
+      {
+        "firstname": "dzqdqz",
+        "lastname": "dqzdqz"
+      },
       {
         "firstname": "zdqdqzd",
         "lastname": "zdqdqzd"
@@ -18,7 +89,11 @@
     ]
   },
   {
-    "name": "123",
-    "students": 123
+    "name": "Nouvelle classe 2",
+    "students_list": []
+  },
+  {
+    "name": "Nouvelle classe 3",
+    "students_list": []
   }
 ]
