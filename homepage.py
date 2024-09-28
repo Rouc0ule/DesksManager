@@ -259,11 +259,16 @@ class HomePage:
             details_frame.pack(side='left', fill='both', expand=True)
             students_frame.pack(side='right', fill='both', expand=True)
             
-            details_canvas = self.create_canvas(details_frame)
-            details_canvas.pack(fill='both')
+            self.details_canvas = self.create_canvas(details_frame)
+            self.details_canvas.pack(fill='both')
 
-            details_canvas.create_text(50, 50, text='Classe : ' + class_details.get('name', ''), font=("San Francisco", 20, 'bold'), anchor='w')
-            details_canvas.create_text(50, 80, text=('{} élèves'.format(len(class_details.get('students_list', [])))), font=("San Francisco", 17, 'italic'), anchor='w')
+            self.details_canvas.create_image(30, 50, image=self.edit_img, tag='edit_btn')
+            self.class_name_text = self.details_canvas.create_text(50, 50, text='Classe : ' + class_details.get('name', ''), font=("San Francisco", 20, 'bold'), anchor='w')
+            self.details_canvas.create_text(50, 80, text=('{} élèves'.format(len(class_details.get('students_list', [])))), font=("San Francisco", 17, 'italic'), anchor='w')
+
+            self.details_canvas.tag_bind('edit_btn', '<Enter>', lambda e: self.details_canvas.config(cursor="hand2"))
+            self.details_canvas.tag_bind('edit_btn', '<Leave>', lambda e: self.details_canvas.config(cursor=""))
+            self.details_canvas.tag_bind('edit_btn', '<Button-1>', lambda e: self.edit_class_name(classe))
 
             self.create_student_list(students_frame, class_details)
 
@@ -273,9 +278,30 @@ class HomePage:
             tk.Label(self.right_frame, text="Aucun détail disponible pour cette classe", 
                     font=("San Francisco", 14)).pack()
 
-    def create_add_student_btn(self, parent_frame):
-        btn_canvas = tk.Canvas(parent_frame, width=100, height=25)
-        btn_canvas.pack()
+    def edit_class_name(self, classe):
+        current_name = self.data_manager.get_class_details(classe)['name']
+        entry = tk.Entry(self.details_canvas, font=("San Francisco", 20, 'bold'))
+        entry.insert(0, current_name)
+        entry_window = self.details_canvas.create_window(50, 50, window=entry, anchor='w')
+        
+        def save_new_name(event):
+            new_name = entry.get()
+            if new_name and new_name != current_name:
+                self.data_manager.update_class_name(classe, new_name)
+                self.details_canvas.itemconfig(self.class_name_text, text='Classe : ' + new_name)
+                self.update_class_list()
+            self.details_canvas.delete(entry_window)
+            self.details_canvas.itemconfig(self.class_name_text, state='normal')
+
+        entry.bind('<Return>', save_new_name)
+        entry.bind('<FocusOut>', save_new_name)
+        entry.focus_set()
+        self.details_canvas.itemconfig(self.class_name_text, state='hidden')
+
+    def update_class_list(self):
+        for widget in self.scrollable_list_frame.winfo_children():
+            widget.destroy()
+        self.load_classes()
 
     def create_student_list(self, parent_frame, class_details):
         student_scrollable_frame = tk.Frame(parent_frame)

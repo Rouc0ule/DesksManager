@@ -59,3 +59,11 @@ class DataManager:
                 classe['students_list'] = [s for s in classe['students_list'] if s['firstname'] + ' ' + s['lastname'] != student_name]
                 break
         self.save_classes(classes)
+    
+    def update_class_name(self, old_name, new_name):
+        classes = self.load_classes()
+        for classe in classes:
+            if classe['name'] == old_name:
+                classe['name'] = new_name
+                break
+        self.save_classes(classes)
