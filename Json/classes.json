@@ -1,107 +1,4 @@
 [
-<<<<<<< HEAD
-  {
-    "name": "la classe",
-    "students_list": [
-      {
-        "firstname": "zdqdqzd",
-        "lastname": "zdqdqzd"
-      },
-      {
-        "firstname": "dqzdqzd",
-        "lastname": "zdqd"
-      },
-      {
-        "firstname": "dzqdqz",
-        "lastname": "dqzdqz"
-      },
-      {
-        "firstname": "zdqdqzd",
-        "lastname": "zdqdqzd"
-      },
-      {
-        "firstname": "dqzdqzd",
-        "lastname": "zdqd"
-      },
-      {
-        "firstname": "dzqdqz",
-        "lastname": "dqzdqz"
-      },
-      {
-        "firstname": "zdqdqzd",
-        "lastname": "zdqdqzd"
-      },
-      {
-        "firstname": "dqzdqzd",
-        "lastname": "zdqd"
-      },
-      {
-        "firstname": "dzqdqz",
-        "lastname": "dqzdqz"
-      },
-      {
-        "firstname": "zdqdqzd",
-        "lastname": "zdqdqzd"
-      },
-      {
-        "firstname": "dqzdqzd",
-        "lastname": "zdqd"
-      },
-      {
-        "firstname": "dzqdqz",
-        "lastname": "dqzdqz"
-      },
-      {
-        "firstname": "zdqdqzd",
-        "lastname": "zdqdqzd"
-      },
-      {
-        "firstname": "dqzdqzd",
-        "lastname": "zdqd"
-      },
-      {
-        "firstname": "dzqdqz",
-        "lastname": "dqzdqz"
-      },
-      {
-        "firstname": "zdqdqzd",
-        "lastname": "zdqdqzd"
-      },
-      {
-        "firstname": "dqzdqzd",
-        "lastname": "zdqd"
-      },
-      {
-        "firstname": "dzqdqz",
-        "lastname": "dqzdqz"
-      },
-      {
-        "firstname": "zdqdqzd",
-        "lastname": "zdqdqzd"
-      },
-      {
-        "firstname": "dqzdqzd",
-        "lastname": "zdqd"
-      },
-      {
-        "firstname": "dzqdqz",
-        "lastname": "dqzdqz"
-      }
-    ]
-  },
-  {
-    "name": "5e5",
-    "students_list": []
-  },
-  {
-    "name": "4e4",
-    "students_list": []
-  },
-  {
-    "name": "3e3",
-    "students_list": []
-  }
-=======
     {
         "name": "6e5",
         "students_list": [
@@ -157,7 +54,12 @@
     },
     {
         "name": "5e4",
-        "students_list": []
+        "students_list": [
+            {
+                "firstname": "Aloulou",
+                "lastname": "Boubou"
+            }
+        ]
     },
     {
         "name": "4e4",
@@ -167,5 +69,4 @@
         "name": "3e3",
         "students_list": []
     }
->>>>>>> 507d189256d565f52e5ffcf559e1d0b9217a33e6
 ]
