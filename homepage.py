@@ -12,6 +12,7 @@ class HomePage:
         self.setup_frames()
         self.setup_widgets()
         self.load_classes()
+        self.display_no_class_selected_message()
 
     def load_images(self):
         self.search_img = self.load_image("search")
@@ -21,6 +22,7 @@ class HomePage:
         self.edit_img = self.load_image("edit")
         self.edit_img_large = self.load_image("edit", size=(30,30))
         self.plus_img = self.load_image("plus_circle")
+        self.warning_img_large = self.load_image("exclamationmark_triangle", size=(100,100))
 
     def load_image(self, name, size=(25, 25)):
         return ImageTk.PhotoImage(Image.open(f"Assets/{self.theme}_{name}.png").resize(size))
@@ -266,42 +268,51 @@ class HomePage:
         
         self.configure_interior()
         self.on_frame_configure()
+        self.display_no_class_selected_message()
 
-    def display_class_details(self, classe):
+    def display_class_details(self, classe=None):
+        if classe is None or self.data_manager.get_class_details(classe) is None:
+            self.display_no_class_selected_message()
+            return
+
         for widget in self.right_frame.winfo_children():
             widget.destroy()
 
         class_details = self.data_manager.get_class_details(classe)
 
-        if class_details:
-            details_frame = self.create_frame(self.right_frame)
-            students_frame = self.create_frame(self.right_frame)
+        details_frame = self.create_frame(self.right_frame)
+        students_frame = self.create_frame(self.right_frame)
 
-            details_frame.pack(side='left', fill='both', expand=True)
-            students_frame.pack(side='right', fill='both', expand=True)
-            
-            self.details_canvas = self.create_canvas(details_frame)
-            self.details_canvas.pack(fill='both')
+        details_frame.pack(side='left', fill='both', expand=True)
+        students_frame.pack(side='right', fill='both', expand=True)
+        
+        self.details_canvas = self.create_canvas(details_frame)
+        self.details_canvas.pack(fill='both')
 
-            self.details_canvas.create_image(30, 50, image=self.edit_img, tag='edit_btn')
-            self.class_name_text = self.details_canvas.create_text(50, 50, text='Classe : ' + class_details.get('name', ''), font=("San Francisco", 20, 'bold'), anchor='w')
-            self.details_canvas.create_text(50, 80, text=('{} élèves'.format(len(class_details.get('students_list', [])))), font=("San Francisco", 17, 'italic'), anchor='w')
+        self.details_canvas.create_image(30, 50, image=self.edit_img, tag='edit_btn')
+        self.class_name_text = self.details_canvas.create_text(50, 50, text='Classe : ' + class_details.get('name', ''), font=("San Francisco", 20, 'bold'), anchor='w')
+        self.details_canvas.create_text(50, 80, text=('{} élèves'.format(len(class_details.get('students_list', [])))), font=("San Francisco", 17, 'italic'), anchor='w')
 
-            self.details_canvas.tag_bind('edit_btn', '<Enter>', lambda e: self.on_edit_hover(self.details_canvas, True))
-            self.details_canvas.tag_bind('edit_btn', '<Leave>', lambda e: self.on_edit_hover(self.details_canvas, False))
-            self.details_canvas.tag_bind('edit_btn', '<Button-1>', lambda e: self.edit_class_name(classe))
+        self.details_canvas.tag_bind('edit_btn', '<Enter>', lambda e: self.on_edit_hover(self.details_canvas, True))
+        self.details_canvas.tag_bind('edit_btn', '<Leave>', lambda e: self.on_edit_hover(self.details_canvas, False))
+        self.details_canvas.tag_bind('edit_btn', '<Button-1>', lambda e: self.edit_class_name(classe))
 
-            self.student_list_name_canvas = self.create_canvas(students_frame, width=360, height=50)
-            self.student_list_name_canvas.pack()
-            self.student_list_name_canvas.create_text(180, 25, text='STUDENT LIST', font=("San Francisco", 17, 'bold'))
+        self.student_list_name_canvas = self.create_canvas(students_frame, width=360, height=50)
+        self.student_list_name_canvas.pack()
+        self.student_list_name_canvas.create_text(180, 25, text='STUDENT LIST', font=("San Francisco", 17, 'bold'))
 
-            self.create_student_list(students_frame, class_details)
+        self.create_student_list(students_frame, class_details)
 
-            self.create_rounded_button(students_frame, 250, 50, text='Add Student', icon=self.plus_img, padx=5, pady=5, command=lambda event: self.add_student(classe))
+        self.create_rounded_button(students_frame, 250, 50, text='Add Student', icon=self.plus_img, padx=5, pady=5, command=lambda event: self.add_student(classe))
 
-        else:
-            tk.Label(self.right_frame, text="Aucun détail disponible pour cette classe", 
-                    font=("San Francisco", 14)).pack()
+    def display_no_class_selected_message(self):
+        for widget in self.right_frame.winfo_children():
+            widget.destroy()
+        
+        message_canvas = self.create_canvas(self.right_frame, width=500, height=500)
+        message_canvas.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+        message_canvas.create_image(250, 200, image=self.warning_img_large)
+        message_canvas.create_text(250, 275, text="Aucune classe n'est sélectionnée", font=("San Francisco", 20, 'bold'))
 
     def on_edit_hover(self, canvas, is_hover):
         if is_hover:
@@ -426,11 +437,13 @@ class HomePage:
                 new_student = {"firstname": firstname, "lastname": lastname}
                 self.data_manager.add_student(classe, new_student)
                 self.display_class_details(classe)
+                self.update_class_list()
 
     def remove_student(self, classe, student):
         if messagebox.askyesno("Supprimer l'élève", f"Voulez-vous vraiment supprimer {student['firstname']} {student['lastname']} ?"):
             self.data_manager.remove_student(classe, f"{student['firstname']} {student['lastname']}")
             self.display_class_details(classe)
+            self.update_class_list()
 
     def create_rounded_button(self, parent, width, height, text, padx=0, pady=0, icon=None, command=None):
         canvas_width , canvas_height = width + 6, height + 6
