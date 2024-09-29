@@ -3,88 +3,52 @@
         "name": "6e5",
         "students_list": [
             {
-                "firstname": "zdqdqzd",
-                "lastname": "zdqdqzd"
+                "firstname": "Fabrice",
+                "lastname": "Rouge"
             },
             {
-                "firstname": "dqzdqzd",
-                "lastname": "zdqd"
+                "firstname": "Julien",
+                "lastname": "Bleu"
             },
             {
-                "firstname": "dzqdqz",
-                "lastname": "dqzdqz"
+                "firstname": "Julie",
+                "lastname": "Vert"
             },
             {
-                "firstname": "zdqdqzd",
-                "lastname": "zdqdqzd"
+                "firstname": "Martin",
+                "lastname": "Super"
             },
             {
-                "firstname": "dqzdqzd",
-                "lastname": "zdqd"
+                "firstname": "Robert",
+                "lastname": "Robert"
             },
             {
-                "firstname": "dzqdqz",
-                "lastname": "dqzdqz"
+                "firstname": "Bertrant",
+                "lastname": "Dupont"
             },
             {
-                "firstname": "zdqdqzd",
-                "lastname": "zdqdqzd"
+                "firstname": "Dupont",
+                "lastname": "Bertrant"
             },
             {
-                "firstname": "dqzdqzd",
-                "lastname": "zdqd"
+                "firstname": "Marin",
+                "lastname": "D'eau douces"
             },
             {
-                "firstname": "dzqdqz",
-                "lastname": "dqzdqz"
+                "firstname": "Pirates",
+                "lastname": "des caraibes"
             },
             {
-                "firstname": "zdqdqzd",
-                "lastname": "zdqdqzd"
+                "firstname": "Le poulet",
+                "lastname": "Griller"
             },
             {
-                "firstname": "dqzdqzd",
-                "lastname": "zdqd"
+                "firstname": "Remi",
+                "lastname": "Arduino"
             },
             {
-                "firstname": "dzqdqz",
-                "lastname": "dqzdqz"
-            },
-            {
-                "firstname": "zdqdqzd",
-                "lastname": "zdqdqzd"
-            },
-            {
-                "firstname": "dqzdqzd",
-                "lastname": "zdqd"
-            },
-            {
-                "firstname": "dzqdqz",
-                "lastname": "dqzdqz"
-            },
-            {
-                "firstname": "zdqdqzd",
-                "lastname": "zdqdqzd"
-            },
-            {
-                "firstname": "dqzdqzd",
-                "lastname": "zdqd"
-            },
-            {
-                "firstname": "dzqdqz",
-                "lastname": "dqzdqz"
-            },
-            {
-                "firstname": "zdqdqzd",
-                "lastname": "zdqdqzd"
-            },
-            {
-                "firstname": "dqzdqzd",
-                "lastname": "zdqd"
-            },
-            {
-                "firstname": "dzqdqz",
-                "lastname": "dqzdqz"
+                "firstname": "Roucoule",
+                "lastname": "Lemeilleur"
             }
         ]
     },
@@ -98,10 +62,6 @@
     },
     {
         "name": "3e3",
-        "students_list": []
-    },
-    {
-        "name": "Nouvelle classe 5",
         "students_list": []
     }
 ]

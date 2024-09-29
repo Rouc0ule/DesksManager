@@ -16,11 +16,13 @@ class HomePage:
     def load_images(self):
         self.search_img = self.load_image("search")
         self.trash_img = self.load_image("delete")
+        self.trash_img_large = self.load_image("delete", size=(30, 30))
         self.edit_img = self.load_image("edit")
+        self.edit_img_large = self.load_image("edit", size=(30,30))
         self.plus_img = self.load_image("plus_circle")
 
-    def load_image(self, name):
-        return ImageTk.PhotoImage(Image.open(f"Assets/{self.theme}_{name}.png").resize((25, 25)))
+    def load_image(self, name, size=(25, 25)):
+        return ImageTk.PhotoImage(Image.open(f"Assets/{self.theme}_{name}.png").resize(size))
 
     def setup_frames(self):
         self.left_frame = self.create_frame(self.root, width=400)
@@ -125,8 +127,8 @@ class HomePage:
         canvas.original_dims = original_dims
 
     def bind_class_events(self, canvas, classe):
-        canvas.tag_bind('trash_btn', '<Enter>', lambda e: canvas.config(cursor="hand2"))
-        canvas.tag_bind('trash_btn', '<Leave>', lambda e: canvas.config(cursor=""))
+        canvas.tag_bind('trash_btn', '<Enter>', lambda e: self.on_trash_hover(canvas, True))
+        canvas.tag_bind('trash_btn', '<Leave>', lambda e: self.on_trash_hover(canvas, False))
         canvas.tag_bind('trash_btn', '<Button-1>', lambda e: self.on_trash_click(classe))
         canvas.tag_bind('class_rect', '<Enter>', lambda e: self.on_class_hover(e, canvas))
         canvas.tag_bind('class_rect', '<Leave>', lambda e: self.on_class_leave(e, canvas))
@@ -135,6 +137,14 @@ class HomePage:
         canvas.bind("<MouseWheel>", self.on_mousewheel)
         canvas.tag_bind('class_rect', '<Button-1>', lambda e, c=classe: self.display_class_details(c))
         canvas.tag_bind('class_text', '<Button-1>', lambda e, c=classe: self.display_class_details(c))
+
+    def on_trash_hover(self, canvas, is_hover):
+        if is_hover:
+            canvas.itemconfig('trash_btn', image=self.trash_img_large)
+            canvas.config(cursor="hand2")
+        else:
+            canvas.itemconfig('trash_btn', image=self.trash_img)
+            canvas.config(cursor="")
 
     def create_add_button(self):
         self.create_circle(self.add_btn_canvas, 40, 40, 25, fill='lightgray', outline='', tags='add_btn_circle')
@@ -266,17 +276,29 @@ class HomePage:
             self.class_name_text = self.details_canvas.create_text(50, 50, text='Classe : ' + class_details.get('name', ''), font=("San Francisco", 20, 'bold'), anchor='w')
             self.details_canvas.create_text(50, 80, text=('{} élèves'.format(len(class_details.get('students_list', [])))), font=("San Francisco", 17, 'italic'), anchor='w')
 
-            self.details_canvas.tag_bind('edit_btn', '<Enter>', lambda e: self.details_canvas.config(cursor="hand2"))
-            self.details_canvas.tag_bind('edit_btn', '<Leave>', lambda e: self.details_canvas.config(cursor=""))
+            self.details_canvas.tag_bind('edit_btn', '<Enter>', lambda e: self.on_edit_hover(self.details_canvas, True))
+            self.details_canvas.tag_bind('edit_btn', '<Leave>', lambda e: self.on_edit_hover(self.details_canvas, False))
             self.details_canvas.tag_bind('edit_btn', '<Button-1>', lambda e: self.edit_class_name(classe))
+
+            self.student_list_name_canvas = self.create_canvas(students_frame, width=360, height=50)
+            self.student_list_name_canvas.pack()
+            self.student_list_name_canvas.create_text(180, 25, text='STUDENT LIST', font=("San Francisco", 17, 'bold'))
 
             self.create_student_list(students_frame, class_details)
 
-            self.create_rounded_button(students_frame, 250, 50, text='Add Student', icon=self.plus_img, padx=5, pady=5)
+            self.create_rounded_button(students_frame, 250, 50, text='Add Student', icon=self.plus_img, padx=5, pady=5, command=lambda event: self.add_student(classe))
 
         else:
             tk.Label(self.right_frame, text="Aucun détail disponible pour cette classe", 
                     font=("San Francisco", 14)).pack()
+
+    def on_edit_hover(self, canvas, is_hover):
+        if is_hover:
+            canvas.itemconfig('edit_btn', image=self.edit_img_large)
+            canvas.config(cursor="hand2")
+        else:
+            canvas.itemconfig('edit_btn', image=self.edit_img)
+            canvas.config(cursor="")
 
     def edit_class_name(self, classe):
         class_details = self.data_manager.get_class_details(classe)
@@ -313,7 +335,7 @@ class HomePage:
         student_scrollable_frame = tk.Frame(parent_frame)
         student_scrollable_frame.pack(fill='both', expand=True)
 
-        student_canvas = self.create_canvas(student_scrollable_frame, width=360, height=0)
+        student_canvas = self.create_canvas(student_scrollable_frame, width=360, height=200)  # Ajustez la hauteur selon vos besoins
         student_scrollbar = tk.Scrollbar(student_scrollable_frame, orient="vertical", command=student_canvas.yview)
 
         student_inner_frame = tk.Frame(student_canvas)
@@ -322,14 +344,22 @@ class HomePage:
         student_canvas.create_window((0, 0), window=student_inner_frame, anchor="nw")
 
         for student in class_details.get('students_list', []):
-            self.add_student_to_list(student_inner_frame, student)
+            self.add_student_to_list(student_inner_frame, class_details['name'], student)
 
         student_inner_frame.bind("<Configure>", lambda e: student_canvas.configure(scrollregion=student_canvas.bbox("all")))
 
         student_canvas.pack(side="left", fill="y", expand=True)
         student_scrollbar.pack(side="right", fill="y")
 
-    def add_student_to_list(self, parent_frame, student):
+        student_canvas.bind("<MouseWheel>", self.on_student_mousewheel)
+        student_inner_frame.bind("<MouseWheel>", self.on_student_mousewheel)
+
+        self.student_canvas = student_canvas
+
+    def on_student_mousewheel(self, event):
+        self.student_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+
+    def add_student_to_list(self, parent_frame, classe, student):
         student_frame = tk.Frame(parent_frame, width=360, height=75)
         student_frame.pack()
         student_frame.pack_propagate(False)
@@ -346,17 +376,18 @@ class HomePage:
 
         canvas.original_dims = original_dims
 
-        self.bind_student_events(canvas, student)
+        self.bind_student_events(canvas, classe, student)
 
-    def bind_student_events(self, canvas, student):
-        canvas.tag_bind('trash_btn', '<Enter>', lambda e: canvas.config(cursor="hand2"))
-        canvas.tag_bind('trash_btn', '<Leave>', lambda e: canvas.config(cursor=""))
-        canvas.tag_bind('trash_btn', '<Button-1>', lambda e: self.remove_student(student))
+    def bind_student_events(self, canvas, classe, student):
+        canvas.tag_bind('trash_btn', '<Enter>', lambda e: self.on_trash_hover(canvas, True))
+        canvas.tag_bind('trash_btn', '<Leave>', lambda e: self.on_trash_hover(canvas, False))
+        canvas.tag_bind('trash_btn', '<Button-1>', lambda e: self.remove_student(classe, student))
 
         canvas.tag_bind('student_rect', '<Enter>', lambda e: self.on_student_hover(e, canvas))
         canvas.tag_bind('student_rect', '<Leave>', lambda e: self.on_student_leave(e, canvas))
         canvas.tag_bind('student_text', '<Enter>', lambda e: self.on_student_hover(e, canvas))
         canvas.tag_bind('student_text', '<Leave>', lambda e: self.on_student_leave(e, canvas))
+        canvas.bind("<MouseWheel>", self.on_student_mousewheel)
 
     def on_student_hover(self, event, canvas):
         if not hasattr(canvas, 'is_hovering') or not canvas.is_hovering:
@@ -375,10 +406,6 @@ class HomePage:
             canvas.config(cursor="")
             canvas.tag_raise('student_text')
             canvas.tag_raise('trash_btn')
-
-    def on_student_trash_click(self, student):
-        # Implement student deletion logic here
-        pass
 
     def add_student(self, classe):
         firstname = simpledialog.askstring("Nouvel élève", "Prénom de l'élève:")
