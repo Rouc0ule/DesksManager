@@ -15,6 +15,7 @@ class HomePage:
 
     def load_images(self):
         self.search_img = self.load_image("search")
+        self.search_img_large = self.load_image("search", size=(30,30))
         self.trash_img = self.load_image("delete")
         self.trash_img_large = self.load_image("delete", size=(30, 30))
         self.edit_img = self.load_image("edit")
@@ -56,14 +57,23 @@ class HomePage:
     def bind_searchbar_events(self):
         self.searchbar_canvas.bind('<Enter>', self.on_searchbar_hover)
         self.searchbar_canvas.bind('<Leave>', self.on_searchbar_leave)
-        self.searchbar_canvas.bind('<Button-1>', self.on_searchbar_click)
+        self.searchbar_canvas.tag_bind('searchbar_rect', '<Button-1>', self.on_searchbar_click)
         self.searchbar_entry.bind('<Enter>', self.on_searchbar_hover)
         self.searchbar_entry.bind('<Leave>', self.on_searchbar_leave)
         self.searchbar_entry.bind('<Button-1>', self.on_searchbar_click)
-        self.searchbar_canvas.tag_bind('searchbar_btn', '<Enter>', self.on_searchbar_hover)
-        self.searchbar_canvas.tag_bind('searchbar_btn', '<Leave>', self.on_searchbar_leave)
-        self.searchbar_canvas.tag_bind('searchbar_btn', '<Button-1>', self.on_searchbar_click)
+        self.searchbar_canvas.tag_bind('searchbar_btn', '<Enter>', self.on_search_btn_hover)
+        self.searchbar_canvas.tag_bind('searchbar_btn', '<Leave>', self.on_search_btn_leave)
+        self.searchbar_canvas.tag_bind('searchbar_btn', '<Button-1>', self.on_search_btn_click)
 
+    def on_search_btn_hover(self, event):
+        self.searchbar_canvas.itemconfig('searchbar_btn', image=self.search_img_large)
+        self.searchbar_canvas.config(cursor="hand2")
+
+    def on_search_btn_leave(self, event):
+        self.searchbar_canvas.itemconfig('searchbar_btn', image=self.search_img)
+        self.searchbar_canvas.config(cursor="xterm")
+
+    
     def setup_scrollable_frame(self):
         self.scrollable_frame = tk.Frame(self.left_frame)
         self.scrollable_list_canvas = self.create_canvas(self.scrollable_frame, width=360, height=0)
@@ -213,11 +223,12 @@ class HomePage:
         self.searchbar_canvas.config(cursor="")
 
     def on_searchbar_click(self, event):
-        if event.widget == self.searchbar_entry:
-            self.searchbar_entry.focus_set()
-        elif 'searchbar_btn' in self.searchbar_canvas.gettags('current'):
-            print("Search button clicked!")
+        self.searchbar_entry.focus_set()
         self.on_searchbar_hover(event)
+
+    def on_search_btn_click(self, event):
+        search_text = self.searchbar_entry.get()
+        print(f"Recherche : {search_text}")
 
     def on_mousewheel(self, event):
         self.scrollable_list_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")

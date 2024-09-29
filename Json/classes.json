@@ -54,7 +54,12 @@
     },
     {
         "name": "5e4",
-        "students_list": []
+        "students_list": [
+            {
+                "firstname": "Aloulou",
+                "lastname": "Boubou"
+            }
+        ]
     },
     {
         "name": "4e4",
