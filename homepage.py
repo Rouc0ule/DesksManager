@@ -8,6 +8,8 @@ class HomePage:
         self.root = root
         self.theme = theme
         self.data_manager = DataManager('Json/classes.json')
+        self.sort_type = 'Date'
+        self.sort_order = 'Descending'
         self.load_images()
         self.setup_frames()
         self.setup_widgets()
@@ -23,6 +25,8 @@ class HomePage:
         self.edit_img_large = self.load_image("edit", size=(30,30))
         self.plus_img = self.load_image("plus_circle")
         self.warning_img_large = self.load_image("exclamationmark_triangle", size=(100,100))
+        self.chevron_img = self.load_image("chevron_up")
+        self.chevron_img_large = self.load_image("chevron_up", size=(30,30))
 
     def load_image(self, name, size=(25, 25)):
         return ImageTk.PhotoImage(Image.open(f"Assets/{self.theme}_{name}.png").resize(size))
@@ -32,7 +36,7 @@ class HomePage:
         self.right_frame = self.create_frame(self.root, width=400)
 
     def create_frame(self, parent, width=None, **kwargs):
-        frame = tk.Frame(parent, highlightbackground="lightgray", highlightthickness=1, **kwargs)
+        frame = tk.Frame(parent, highlightbackground="#d3d3d3", highlightthickness=1, **kwargs)
         if width:
             frame.config(width=width)
         return frame
@@ -51,8 +55,8 @@ class HomePage:
         return tk.Canvas(parent, highlightthickness=0, **kwargs)
 
     def create_searchbar_elements(self):
-        self.searchbar_rect = self.rounded_rectangle(self.searchbar_canvas, 12, 12, 360, 50, fill='lightgray', tags='searchbar_rect')
-        self.searchbar_entry = tk.Entry(font=("San Francisco", 15), width=25, relief=tk.FLAT, highlightthickness=0, bg='lightgray')
+        self.searchbar_rect = self.rounded_rectangle(self.searchbar_canvas, 12, 12, 360, 50, fill='#d3d3d3', tags='searchbar_rect')
+        self.searchbar_entry = tk.Entry(font=("San Francisco", 15), width=25, relief=tk.FLAT, highlightthickness=0, bg='#d3d3d3')
         self.searchbar_entry_window = self.searchbar_canvas.create_window(167, 37, window=self.searchbar_entry, tags='searchbar_entry')
         self.searchbar_btn = self.searchbar_canvas.create_image(342, 37, image=self.search_img, tags='searchbar_btn')
 
@@ -66,6 +70,7 @@ class HomePage:
         self.searchbar_canvas.tag_bind('searchbar_btn', '<Enter>', self.on_search_btn_hover)
         self.searchbar_canvas.tag_bind('searchbar_btn', '<Leave>', self.on_search_btn_leave)
         self.searchbar_canvas.tag_bind('searchbar_btn', '<Button-1>', self.on_search_btn_click)
+        self.searchbar_entry.bind('<Return>', self.on_search_btn_click)
 
     def on_search_btn_hover(self, event):
         self.searchbar_canvas.itemconfig('searchbar_btn', image=self.search_img_large)
@@ -96,11 +101,11 @@ class HomePage:
     def setup_add_button(self):
         self.add_btn_canvas = self.create_canvas(self.left_frame, height=80, width=380)
         self.create_add_button()
+        self.create_sort_btn()
 
     def load_classes(self):
         classes = self.data_manager.load_classes()
-        for classe in classes:
-            self.add_class(classe['name'], len(classe.get('students_list', [])))
+        self.sort_classes()
 
     def pack_widgets(self):
         self.left_frame.pack(fill='y', side='left')
@@ -132,7 +137,7 @@ class HomePage:
 
     def create_class_elements(self, canvas, classe, nb_students):
         original_dims = (14, 12, 340, 80)
-        self.rounded_rectangle(canvas, *original_dims, fill='lightgray', tags='class_rect')
+        self.rounded_rectangle(canvas, *original_dims, fill='#d3d3d3', tags='class_rect')
         canvas.create_text(25, 40, text=classe, font=("San Francisco", 20, 'bold'), anchor='w', tags='class_text')
         canvas.create_text(25, 70, text=f"{nb_students} élèves", font=("San Francisco", 12), anchor='w', tags='class_text')
         canvas.create_image(332, 70, image=self.trash_img, tags='trash_btn')
@@ -159,7 +164,7 @@ class HomePage:
             canvas.config(cursor="")
 
     def create_add_button(self):
-        self.create_circle(self.add_btn_canvas, 40, 40, 25, fill='lightgray', outline='', tags='add_btn_circle')
+        self.create_circle(self.add_btn_canvas, 40, 40, 25, fill='#d3d3d3', outline='', tags='add_btn_circle')
         self.add_btn_canvas.create_text(40, 40, text='+', font=('San Francisco', 30), tags='add_btn_text')
         self.add_btn_canvas.addtag_withtag('add_btn', 'add_btn_circle')
         self.add_btn_canvas.addtag_withtag('add_btn', 'add_btn_text')
@@ -169,6 +174,136 @@ class HomePage:
 
     def create_circle(self, canvas, x, y, r, **kwargs):
         return canvas.create_oval(x-r, y-r, x+r, y+r, **kwargs)
+
+    def create_sort_btn(self):
+        self.date_btn = self.rounded_rectangle(self.add_btn_canvas, 90, 25, 110, 30, r=20, fill='#d3d3d3', tags='type_btn')
+        self.add_btn_canvas.create_text(100, 40, text='Date', font=('San Francisco', 13), anchor='w', tags='type_btn_text')
+        self.add_btn_canvas.create_image(180, 40, image=self.chevron_img, tags='type_btn_chevron')
+        
+        self.order_btn = self.rounded_rectangle(self.add_btn_canvas, 210, 25, 130, 30, r=20, fill='#d3d3d3', tags='order_btn')
+        self.add_btn_canvas.create_text(220, 40, text='Descending', font=('San Francisco', 13), anchor='w', tags='order_btn_text')
+        self.add_btn_canvas.create_image(320, 40, image=self.chevron_img, tags='order_btn_chevron')
+
+        self.date_dropdown = self.create_dropdown_menu(120, ['Date', 'Name', 'Students'])
+        self.order_dropdown = self.create_dropdown_menu(120, ['Ascending', 'Descending'])
+
+        self.add_btn_canvas.tag_bind('type_btn', '<Enter>', lambda e: self.on_sort_btn_hover(e, 'type_btn'))
+        self.add_btn_canvas.tag_bind('type_btn', '<Leave>', lambda e: self.on_sort_btn_leave(e, 'type_btn'))
+        self.add_btn_canvas.tag_bind('type_btn', '<Button-1>', lambda e: self.toggle_dropdown(self.date_dropdown, 'type_btn'))
+        self.add_btn_canvas.tag_bind('type_btn_text', '<Enter>', lambda e: self.on_sort_btn_hover(e, 'type_btn'))
+        self.add_btn_canvas.tag_bind('type_btn_text', '<Leave>', lambda e: self.on_sort_btn_leave(e, 'type_btn'))
+        self.add_btn_canvas.tag_bind('type_btn_text', '<Button-1>', lambda e: self.toggle_dropdown(self.date_dropdown, 'type_btn'))
+        self.add_btn_canvas.tag_bind('type_btn_chevron', '<Enter>', lambda e: self.on_sort_btn_hover(e, 'type_btn', image=True))
+        self.add_btn_canvas.tag_bind('type_btn_chevron', '<Leave>', lambda e: self.on_sort_btn_leave(e, 'type_btn'))
+        self.add_btn_canvas.tag_bind('type_btn_chevron', '<Button-1>', lambda e: self.toggle_dropdown(self.date_dropdown, 'type_btn'))
+
+        self.add_btn_canvas.tag_bind('order_btn', '<Enter>', lambda e: self.on_sort_btn_hover(e, 'order_btn'))
+        self.add_btn_canvas.tag_bind('order_btn', '<Leave>', lambda e: self.on_sort_btn_leave(e, 'order_btn'))
+        self.add_btn_canvas.tag_bind('order_btn', '<Button-1>', lambda e: self.toggle_dropdown(self.order_dropdown, 'order_btn'))
+        self.add_btn_canvas.tag_bind('order_btn_text', '<Enter>', lambda e: self.on_sort_btn_hover(e, 'order_btn'))
+        self.add_btn_canvas.tag_bind('order_btn_text', '<Leave>', lambda e: self.on_sort_btn_leave(e, 'order_btn'))
+        self.add_btn_canvas.tag_bind('order_btn_text', '<Button-1>', lambda e: self.toggle_dropdown(self.order_dropdown, 'order_btn'))
+        self.add_btn_canvas.tag_bind('order_btn_chevron', '<Enter>', lambda e: self.on_sort_btn_hover(e, 'order_btn', image=True))
+        self.add_btn_canvas.tag_bind('order_btn_chevron', '<Leave>', lambda e: self.on_sort_btn_leave(e, 'order_btn'))
+        self.add_btn_canvas.tag_bind('order_btn_chevron', '<Button-1>', lambda e: self.toggle_dropdown(self.order_dropdown, 'order_btn'))
+
+    def on_sort_btn_hover(self, event, btn_tag, image=False):
+        self.add_btn_canvas.itemconfig(btn_tag, fill='#a0a0a0')
+        if image:
+            self.add_btn_canvas.itemconfig('{}_chevron'.format(btn_tag), image=self.chevron_img_large)
+        self.add_btn_canvas.config(cursor="hand2")
+
+    def on_sort_btn_leave(self, event, btn_tag):
+        self.add_btn_canvas.itemconfig(btn_tag, fill='#d3d3d3')
+        self.add_btn_canvas.itemconfig('{}_chevron'.format(btn_tag), image=self.chevron_img)
+        self.add_btn_canvas.config(cursor="")
+
+    def create_dropdown_menu(self, width, options):
+        menu = tk.Toplevel(self.root)
+        menu.withdraw()
+        menu.overrideredirect(True)
+        
+        menu_canvas = tk.Canvas(menu, width=width, height=len(options) * 30, highlightthickness=0)
+        menu_canvas.pack()
+
+        self.rounded_rectangle(menu_canvas, 0, 0, width, len(options) * 30, r=20, fill='#b7b7b7', tags='menu_bg')
+        
+        for i, option in enumerate(options):
+            y_pos = i * 30 + 15
+            self.rounded_rectangle(menu_canvas, 0, y_pos-15, width, 30, r=20, fill='#b7b7b7', tags=f'option_{i}')
+            menu_canvas.create_text(10, y_pos, text=option, anchor='w', font=('San Francisco', 12), tags=f'text_{i}')
+            
+            menu_canvas.tag_bind(f'option_{i}', '<Enter>', lambda e, i=i: self.on_option_hover(menu_canvas, i))
+            menu_canvas.tag_bind(f'option_{i}', '<Leave>', lambda e, i=i: self.on_option_leave(menu_canvas, i))
+            menu_canvas.tag_bind(f'option_{i}', '<Button-1>', lambda e, opt=option: self.on_option_select(opt, menu))
+            menu_canvas.tag_bind(f'text_{i}', '<Enter>', lambda e, i=i: self.on_option_hover(menu_canvas, i))
+            menu_canvas.tag_bind(f'text_{i}', '<Leave>', lambda e, i=i: self.on_option_leave(menu_canvas, i))
+            menu_canvas.tag_bind(f'text_{i}', '<Button-1>', lambda e, opt=option: self.on_option_select(opt, menu))
+        
+        menu.bind('<Leave>', lambda e: self.hide_dropdown(menu))
+        
+        return menu
+
+    def hide_dropdown(self, menu):
+        menu.withdraw()
+
+    def on_option_hover(self, canvas, i):
+        canvas.itemconfig(f'option_{i}', fill='#a0a0a0')
+        canvas.tag_raise(f'text_{i}')
+
+    def on_option_leave(self, canvas, i):
+        canvas.itemconfig(f'option_{i}', fill='#b7b7b7')
+
+    def on_option_select(self, option, menu):
+        menu.withdraw()
+        if menu == self.date_dropdown:
+            self.update_sort_btn_text('type_btn', option)
+            self.sort_type = option
+        elif menu == self.order_dropdown:
+            self.update_sort_btn_text('order_btn', option)
+            self.sort_order = option
+        self.sort_classes()
+
+    def sort_classes(self):
+        classes = self.data_manager.load_classes()
+        
+        if self.sort_type == 'Date':
+            classes.sort(key=lambda x: x.get('creation_date', ''))
+        elif self.sort_type == 'Name':
+            classes.sort(key=lambda x: x['name'])
+        elif self.sort_type == 'Students':
+            classes.sort(key=lambda x: len(x.get('students_list', [])))
+        
+        if self.sort_order == 'Descending':
+            classes.reverse()
+        
+        for widget in self.scrollable_list_frame.winfo_children():
+            widget.destroy()
+        
+        for classe in classes:
+            self.add_class(classe['name'], len(classe.get('students_list', [])))
+        
+        self.configure_interior()
+        self.on_frame_configure()
+
+    def update_sort_btn_text(self, btn_tag, new_text):
+        text_tag = f'{btn_tag}_text'
+        self.add_btn_canvas.itemconfig(text_tag, text=new_text)
+
+    def reset_sort_buttons(self):
+        self.update_sort_btn_text('type_btn', 'Date')
+        self.update_sort_btn_text('order_btn', 'Ascending')
+
+    def toggle_dropdown(self, dropdown, button):
+        if dropdown.winfo_viewable():
+            dropdown.withdraw()
+        else:
+            button_bbox = self.add_btn_canvas.bbox(button)
+            x = self.add_btn_canvas.winfo_rootx() + button_bbox[0]
+            y = self.add_btn_canvas.winfo_rooty() + button_bbox[1] - dropdown.winfo_reqheight()
+            dropdown.geometry(f"+{x}+{y}")
+            dropdown.deiconify()
+            dropdown.focus_set()
 
     def configure_interior(self, event=None):
         size = (self.scrollable_list_frame.winfo_reqwidth(), self.scrollable_list_frame.winfo_reqheight())
@@ -203,7 +338,7 @@ class HomePage:
         if hasattr(canvas, 'is_hovering') and canvas.is_hovering:
             canvas.is_hovering = False
             canvas.delete('class_rect')
-            self.rounded_rectangle(canvas, *canvas.original_dims, fill='lightgray', tags='class_rect')
+            self.rounded_rectangle(canvas, *canvas.original_dims, fill='#d3d3d3', tags='class_rect')
             canvas.config(cursor="")
             canvas.tag_raise('class_text')
             canvas.tag_raise('trash_btn')
@@ -219,8 +354,8 @@ class HomePage:
         widget_under_cursor = self.searchbar_canvas.winfo_containing(x, y)
         if widget_under_cursor in [self.searchbar_canvas, self.searchbar_entry]:
             return
-        self.searchbar_canvas.itemconfig('searchbar_rect', fill='lightgray')
-        self.searchbar_entry.config(bg='lightgray')
+        self.searchbar_canvas.itemconfig('searchbar_rect', fill='#d3d3d3')
+        self.searchbar_entry.config(bg='#d3d3d3')
         self.searchbar_canvas.itemconfig('searchbar_btn', image=self.search_img)
         self.searchbar_canvas.config(cursor="")
 
@@ -228,21 +363,34 @@ class HomePage:
         self.searchbar_entry.focus_set()
         self.on_searchbar_hover(event)
 
-    def on_search_btn_click(self, event):
-        search_text = self.searchbar_entry.get()
-        print(f"Recherche : {search_text}")
+    def on_search_btn_click(self, event=None):
+        search_text = self.searchbar_entry.get().lower()
+        self.filter_classes(search_text)
+
+    def filter_classes(self, search_text):
+        for widget in self.scrollable_list_frame.winfo_children():
+            widget.destroy()
+        
+        classes = self.data_manager.load_classes()
+        filtered_classes = [classe for classe in classes if search_text in classe['name'].lower()]
+        
+        for classe in filtered_classes:
+            self.add_class(classe['name'], len(classe.get('students_list', [])))
+        
+        self.configure_interior()
+        self.on_frame_configure()
 
     def on_mousewheel(self, event):
         self.scrollable_list_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
 
     def on_add_btn_hover(self, event):
         self.add_btn_canvas.itemconfig('add_btn_circle', fill='#a0a0a0')
-        self.add_btn_canvas.itemconfig('add_btn_text', fill='black')
+        self.add_btn_canvas.itemconfig('add_btn_text', fill='black', font=('San Francisco', 33))
         self.add_btn_canvas.config(cursor="hand2")
 
     def on_add_btn_leave(self, event):
-        self.add_btn_canvas.itemconfig('add_btn_circle', fill='lightgray')
-        self.add_btn_canvas.itemconfig('add_btn_text', fill='black')
+        self.add_btn_canvas.itemconfig('add_btn_circle', fill='#d3d3d3')
+        self.add_btn_canvas.itemconfig('add_btn_text', fill='black', font=('San Francisco', 30))
         self.add_btn_canvas.config(cursor="")
 
     def add_new_class(self, event):
@@ -357,7 +505,7 @@ class HomePage:
         student_scrollable_frame = tk.Frame(parent_frame)
         student_scrollable_frame.pack(fill='both', expand=True)
 
-        student_canvas = self.create_canvas(student_scrollable_frame, width=360, height=200)  # Ajustez la hauteur selon vos besoins
+        student_canvas = self.create_canvas(student_scrollable_frame, width=360, height=200) 
         student_scrollbar = tk.Scrollbar(student_scrollable_frame, orient="vertical", command=student_canvas.yview)
 
         student_inner_frame = tk.Frame(student_canvas)
@@ -390,7 +538,7 @@ class HomePage:
         canvas.pack(fill=tk.BOTH, expand=True)
 
         original_dims = (5, 5, 350, 65)
-        self.rounded_rectangle(canvas, *original_dims, fill='lightgray', tags='student_rect')
+        self.rounded_rectangle(canvas, *original_dims, fill='#d3d3d3', tags='student_rect')
 
         canvas.create_text(25, 37, text=f"{student['firstname']} {student['lastname']}", 
                         font=("San Francisco", 16), anchor='w', tags='student_text')
@@ -424,7 +572,7 @@ class HomePage:
         if hasattr(canvas, 'is_hovering') and canvas.is_hovering:
             canvas.is_hovering = False
             canvas.delete('student_rect')
-            self.rounded_rectangle(canvas, 5, 5, 350, 65, fill='lightgray', tags='student_rect')
+            self.rounded_rectangle(canvas, 5, 5, 350, 65, fill='#d3d3d3', tags='student_rect')
             canvas.config(cursor="")
             canvas.tag_raise('student_text')
             canvas.tag_raise('trash_btn')
@@ -450,11 +598,10 @@ class HomePage:
         canvas = self.create_canvas(parent, width=canvas_width, height=canvas_height)
         canvas.pack(padx=padx, pady=pady)
 
-        self.rounded_rectangle(canvas, 3, 3, width, height, r=30, fill='lightgray', tags='rounded_rect')
+        self.rounded_rectangle(canvas, 3, 3, width, height, r=30, fill='#d3d3d3', tags='rounded_rect')
         canvas.create_text(canvas_width // 2, canvas_height // 2, text=text, font=('San Francisco', 14), tags='text')
         canvas.create_image(25, canvas_height // 2, image=icon, tags='icon')
 
-        # Modifiez ces lignes pour inclure l'argument 'event'
         canvas.tag_bind('rounded_rect', '<Enter>', lambda event: self._on_button_over(canvas, width, height))
         canvas.tag_bind('rounded_rect', '<Leave>', lambda event: self._on_button_leave(canvas, width, height))
         canvas.tag_bind('text', '<Enter>', lambda event: self._on_button_over(canvas, width, height))
@@ -481,6 +628,6 @@ class HomePage:
         if canvas.cget('cursor') != "":
             canvas.config(cursor="")
             canvas.delete('rounded_rect')
-            self.rounded_rectangle(canvas, 3, 3, width, height, r=30, fill='lightgray', tags='rounded_rect')
+            self.rounded_rectangle(canvas, 3, 3, width, height, r=30, fill='#d3d3d3', tags='rounded_rect')
             canvas.tag_raise('text')
             canvas.tag_raise('icon')
