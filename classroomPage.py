@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import font
 from PIL import ImageTk, Image
 from dragManager import DragManager
 from uniqueTagGenerator import UniqueTagGenerator
@@ -19,9 +19,8 @@ class ClassroomPage:
         self.move()
         
     def load_images(self):
-        image_names = ["plus_rectangle", "person_badge_plus_fill", "delete", "rotate_left", "move", "plus_circle"]
         self.plus_rectangle_img = self.load_image('plus_rectangle')
-        self.person_badge_plus_fill_img = self.load_image('person_badge_plus_fill')
+        self.person_badge_plus_fill_img = self.load_image('person_badge_plus_fill', size=(20,20))
         self.delete_img = self.load_image('delete')
         self.rotate_left_img = self.load_image('rotate_left')
         self.move_img = self.load_image('move')
@@ -40,7 +39,7 @@ class ClassroomPage:
         self.canvas_frame = tk.Frame(self.root)
 
     def setup_canvas(self):
-        self.canvas = tk.Canvas(self.canvas_frame, width=1000, height=800, background="#383", highlightthickness=0)
+        self.canvas = tk.Canvas(self.canvas_frame, width=1300, height=800, background="#383", highlightthickness=0)
         self.drag_manager = DragManager(self.canvas, self.grid_size)
         self.canvas.bind('<Configure>', lambda event: self.create_grid())
         self.tag_generator = UniqueTagGenerator()
@@ -51,6 +50,8 @@ class ClassroomPage:
         self.move_btn = GUIButton(self.bottom_frame, radius=20, text='Move', font=('San Francisco', 10), text_color='#000000', color='#d3d3d3', hover_color='#a0a0a0', image=None, command=self.move)
         self.rotate_btn = GUIButton(self.bottom_frame, radius=20, text='Rotate', font=('San Francisco', 10), text_color='#000000', color='#d3d3d3', hover_color='#a0a0a0', image=None, command=self.rotate)
         self.delete_btn = GUIButton(self.bottom_frame, radius=20, text='Delete', font=('San Francisco', 10), text_color='#000000', color='#d3d3d3', hover_color='#a0a0a0', image=None, command=self.delete)
+        self.var = tk.DoubleVar()
+        self.slider = tk.Scale(self.bottom_frame, from_=10, to=200, resolution=5, orient=tk.HORIZONTAL, variable = self.var, command=self.scale_grid)
 
     def pack_widgets(self):
         self.bottom_frame.pack(side='bottom', anchor='sw')
@@ -65,6 +66,7 @@ class ClassroomPage:
         self.move_btn.pack(side='left', padx=5, pady=5)
         self.rotate_btn.pack(side='left', padx=5, pady=5)
         self.delete_btn.pack(side='left', padx=5, pady=5)
+        self.slider.pack()
         
         self.canvas.pack()
 
@@ -75,9 +77,44 @@ class ClassroomPage:
             self.canvas.create_line([(i, 0), (i, h)], tag='grid_line', fill='#3aa13a', width=0.5)
         for i in range(0, h, self.grid_size):
             self.canvas.create_line([(0, i), (w, i)], tag='grid_line', fill='#3aa13a', width=0.5)
+        self.canvas.tag_lower('grid_line')
+
+    def resize_canvas_items(self, old_grid_size, new_grid_size):
+        scale_factor = new_grid_size / old_grid_size
+        for item in self.canvas.find_all():
+            tags = self.canvas.gettags(item)
+            if 'desk' in tags or 'student' in tags:
+                x1, y1, x2, y2 = self.canvas.coords(item)
+                new_coords = [
+                    round(x1 * scale_factor / new_grid_size) * new_grid_size,
+                    round(y1 * scale_factor / new_grid_size) * new_grid_size,
+                    round(x2 * scale_factor / new_grid_size) * new_grid_size,
+                    round(y2 * scale_factor / new_grid_size) * new_grid_size
+                ]
+                self.canvas.coords(item, *new_coords)
+            elif 'text' in tags:
+                x, y = self.canvas.coords(item)
+                new_coords = [
+                    round(x * scale_factor / new_grid_size) * new_grid_size,
+                    round(y * scale_factor / new_grid_size) * new_grid_size
+                ]
+                self.canvas.coords(item, *new_coords)
+                current_font = self.canvas.itemcget(item, 'font')
+                if current_font:
+                    try:
+                        font = tk.font.Font(font=current_font)
+                        new_size = int(font.cget('size') * scale_factor)
+                        new_font = font.copy()
+                        new_font.configure(size=new_size)
+                        self.canvas.itemconfig(item, font=new_font)
+                    except tk.TclError:
+                        pass
+
+        self.drag_manager.update_grid_size(new_grid_size)
+        self.create_grid()
 
     def add_desk(self):
-        x1, y1 = 20, 20  
+        x1, y1 = 20, 20
         width, height = 8 * self.grid_size, 4 * self.grid_size
         x2, y2 = x1 + width, y1 + height
         
@@ -86,13 +123,13 @@ class ClassroomPage:
         tag = self.tag_generator.next_tag()
         rotation_tag = f"{tag}_rotation_0"
 
-        self.canvas.create_rectangle(x1, y1, x2, y2, fill="#662100", tags=(tag, rotation_tag))
-        self.canvas.create_text((x1+x2)/2, (y1+y2)/2, text='Desk', fill="#ffffff", tags=(tag, rotation_tag))
+        item = self.canvas.create_rectangle(x1, y1, x2, y2, fill="#662100", tags=(tag, rotation_tag, 'desk'))
+        text = self.canvas.create_text((x1+x2)/2, (y1+y2)/2, text='Desk', fill="#ffffff", tags=(tag, rotation_tag, 'text'))
         
         self.drag_manager.add_draggable(tag)
 
     def add_student(self):
-        x1, y1 = 20, 20  
+        x1, y1 = 20, 20
         width, height = 4 * self.grid_size, 2 * self.grid_size
         x2, y2 = x1 + width, y1 + height
 
@@ -101,8 +138,8 @@ class ClassroomPage:
         tag = self.tag_generator.next_tag()
         rotation_tag = f"{tag}_rotation_0"
 
-        self.canvas.create_rectangle(x1, y1, x2, y2, fill="#000066", outline="#0000ff", tags=(tag, rotation_tag))
-        self.canvas.create_text((x1+x2)/2, (y1+y2)/2, text='Student', fill="#ffffff", tags=(tag, rotation_tag))
+        self.canvas.create_rectangle(x1, y1, x2, y2, fill="#000066", outline="#0000ff", tags=(tag, rotation_tag, 'student'))
+        self.canvas.create_text((x1+x2)/2, (y1+y2)/2, text='Student', fill="#ffffff", tags=(tag, rotation_tag, 'text'), font=('San Francisco', int(self.grid_size/3)))
         
         self.drag_manager.add_draggable(tag)
 
@@ -143,3 +180,8 @@ class ClassroomPage:
         self.move_btn.update_button_size()
         self.rotate_btn.update_button_size()
         self.delete_btn.update_button_size()
+
+    def scale_grid(self, value):
+        old_grid_size = self.grid_size
+        self.grid_size = int(value)
+        self.resize_canvas_items(old_grid_size, self.grid_size)

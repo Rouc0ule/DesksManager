@@ -70,6 +70,9 @@ class DragManager:
             self.canvas.coords(text_item, center_x, center_y)
             self.canvas.itemconfig(text_item, angle=rotation)
 
+    def update_grid_size(self, new_grid_size):
+        self.grid_size = new_grid_size
+
     def on_drag(self, event):
         if not self.item or not self.move_mode:
             return
