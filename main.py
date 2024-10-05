@@ -1,10 +1,4 @@
 import tkinter as tk
-from tkinter import ttk
-from PIL import ImageTk, Image
-from dragManager import DragManager
-from uniqueTagGenerator import UniqueTagGenerator
-from jsonloader import JsonManager
-from functions import create_grid, add_desk, add_student, move, rotate, delete, center_window
 from homePage import HomePage
 from classroomPage import ClassroomPage
 #import pywinstyles
@@ -15,7 +9,7 @@ class main(tk.Tk):
         #pywinstyles.apply_style(root, "acrylic")
 
         self.theme = 'light'
-        self.grid_size = 20
+        self.grid_size = 10
         self.number_of_items = 0
         self.Pages('classroom')
 
@@ -24,7 +18,7 @@ class main(tk.Tk):
             self.varhomepage = HomePage(self, self.theme)
             self.varhomepage.pack_widgets()
         elif page == 'classroom':
-            self.classroomPage = ClassroomPage(self, self.theme)
+            self.classroomPage = ClassroomPage(self, self.theme, self.grid_size)
             self.classroomPage.pack_widgets()
 
     def center_window(self, width, height):

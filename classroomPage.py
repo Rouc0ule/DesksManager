@@ -6,10 +6,10 @@ from uniqueTagGenerator import UniqueTagGenerator
 from GUI import GUIButton
 
 class ClassroomPage:
-    def __init__(self, root, theme):
+    def __init__(self, root, theme, grid_size):
         self.root = root
         self.theme = theme
-        self.grid_size = 20
+        self.grid_size = grid_size
         self.load_images()
         self.setup_frames()
         self.setup_canvas()
