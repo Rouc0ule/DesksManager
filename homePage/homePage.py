@@ -1,12 +1,12 @@
 import tkinter as tk
 from tkinter import simpledialog, messagebox
 from PIL import ImageTk, Image
-from dataManager import DataManager
+from homePage.dataManager import DataManager
+from themeManager import ThemeManager
 
 class HomePage:
     def __init__(self, root, theme):
         self.root = root
-        self.theme = theme
         self.data_manager = DataManager('Json/classes.json')
         self.sort_type = 'Date'
         self.sort_order = 'Descending'
@@ -15,7 +15,9 @@ class HomePage:
         self.setup_widgets()
         self.load_classes()
         self.display_no_class_selected_message()
-
+        self.theme_manager = ThemeManager()
+        self.theme = self.theme_manager.set_current_theme(theme)
+        
     def load_images(self):
         self.search_img = self.load_image("search")
         self.search_img_large = self.load_image("search", size=(30,30))

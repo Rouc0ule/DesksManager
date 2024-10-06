@@ -1,6 +1,6 @@
 import tkinter as tk
-from homePage import HomePage
-from classroomPage import ClassroomPage
+from homePage.homePage import HomePage
+from ClassRoomPage.classroomPage import ClassroomPage
 #import pywinstyles
 
 class main(tk.Tk):
@@ -8,7 +8,7 @@ class main(tk.Tk):
         tk.Tk.__init__(self)
         #pywinstyles.apply_style(root, "acrylic")
 
-        self.theme = 'light'
+        self.theme = 'dark'
         self.grid_size = 10
         self.number_of_items = 0
         self.Pages('classroom')

@@ -1,5 +1,5 @@
 import tkinter as tk
-class GUIButton():
+class RTkButton():
     def __init__(self, parent, width=125, height=35, radius=25, text='Button', font=('San Francisco', 10), 
                  color='#00cc00', hover_color='#00aa00', text_color='', image=None, compound='left', command=None):
         self.parent = parent
@@ -16,8 +16,6 @@ class GUIButton():
         self.command = command
         self.image_posx = self.width // 2
         self.image_posy = self.height // 2
-        # self.last_update = time.time()
-        # self.update_interval = 0.05  # 50 ms
 
         self.c = tk.Canvas(parent, width=width, height=height, highlightthickness=0)
         
@@ -96,33 +94,6 @@ class GUIButton():
             self.update_button_size()
             if self.command:
                 self.command()
-
-    # def update_button(self):
-    #     current_time = time.time()
-    #     if current_time - self.last_update >= self.update_interval:
-    #         self.last_update = current_time
-            
-    #         w, h = self.c.winfo_width(), self.c.winfo_height()
-            
-    #         t = (current_time % 2) / 2
-    #         r = int(int(self.color[1:3], 16) * (1-t) + int(self.hover_color[1:3], 16) * t)
-    #         g = int(int(self.color[3:5], 16) * (1-t) + int(self.hover_color[3:5], 16) * t)
-    #         b = int(int(self.color[5:7], 16) * (1-t) + int(self.hover_color[5:7], 16) * t)
-    #         current_color = f'#{r:02x}{g:02x}{b:02x}'
-            
-    #         radius = 25 + int(10 * math.sin(current_time * 2))
-            
-    #         offset_x = int(5 * math.cos(current_time * 2))
-    #         offset_y = int(5 * math.sin(current_time * 2))
-            
-    #         self.c.delete('btn_rect')
-    #         self.create_rounded_rectangle(self.c, offset_x, offset_y, w+offset_x, h+offset_y, radius=radius, fill=current_color, tags='btn_rect')
-    #         self.c.coords('btn_text', w // 2 + offset_x, h // 2 + offset_y)
-    #         self.c.coords('hitbox', offset_x, offset_y, w+offset_x, h+offset_y)
-    #         self.c.tag_raise('btn_text')
-    #         self.c.tag_raise('hitbox')
-
-    #     self.c.after(int(self.update_interval * 1000), self.update_button)
 
     def pack(self, **kwargs):
         self.c.pack(**kwargs)

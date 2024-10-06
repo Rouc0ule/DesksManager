@@ -3,12 +3,15 @@ from tkinter import font
 from PIL import ImageTk, Image
 from ClassRoomPage.dragManager import DragManager
 from ClassRoomPage.uniqueTagGenerator import UniqueTagGenerator
-from RTkinter.widgets.RTkButton import GUIButton
+from RTkinter.widgets.RTkButton import RTkButton
+from themeManager import ThemeManager
 
 class ClassroomPage:
     def __init__(self, root, theme, grid_size):
         self.root = root
-        self.theme = theme
+        self.theme_manager = ThemeManager()
+        self.theme = self.theme_manager.set_current_theme(theme)
+        root.configure(bg=self.theme_manager.get_color("background"))
         self.grid_size = grid_size
         self.load_images()
         self.setup_frames()
@@ -31,7 +34,7 @@ class ClassroomPage:
         return ImageTk.PhotoImage(Image.open(f"Assets/{self.theme}_{name}.png").resize(size))
 
     def setup_frames(self):
-        self.bottom_frame = tk.Frame(self.root)
+        self.bottom_frame = tk.Frame(self.root, bg=self.theme_manager.get_color("frame_bg"))
         # self.control_frame = tk.LabelFrame(self.bottom_frame, text='Commands', width=400)
         # self.control_topframe = tk.Frame(self.control_frame)
         # self.control_middleframe = tk.Frame(self.control_frame)
@@ -45,11 +48,11 @@ class ClassroomPage:
         self.tag_generator = UniqueTagGenerator()
 
     def setup_widgets(self):
-        self.add_student_btn = GUIButton(self.bottom_frame, width=35, radius=20, text='', font=('San Francisco', 10), text_color='#000000', color='#d3d3d3', hover_color='#a0a0a0', image=self.person_badge_plus_fill_img, compound='left', command=self.add_student)
-        self.add_desk_btn = GUIButton(self.bottom_frame, width=35, radius=20, text='', font=('San Francisco', 10), text_color='#000000', color='#d3d3d3', hover_color='#a0a0a0', image=self.plus_rectangle_img, compound='left', command=self.add_desk)
-        self.move_btn = GUIButton(self.bottom_frame, radius=20, text='Move', font=('San Francisco', 10), text_color='#000000', color='#d3d3d3', hover_color='#a0a0a0', image=None, command=self.move)
-        self.rotate_btn = GUIButton(self.bottom_frame, radius=20, text='Rotate', font=('San Francisco', 10), text_color='#000000', color='#d3d3d3', hover_color='#a0a0a0', image=None, command=self.rotate)
-        self.delete_btn = GUIButton(self.bottom_frame, radius=20, text='Delete', font=('San Francisco', 10), text_color='#000000', color='#d3d3d3', hover_color='#a0a0a0', image=None, command=self.delete)
+        self.add_student_btn = RTkButton(self.bottom_frame, width=35, radius=20, text='', font=('San Francisco', 10), color='#d3d3d3', hover_color='#a0a0a0', image=self.person_badge_plus_fill_img, compound='left', command=self.add_student)
+        self.add_desk_btn = RTkButton(self.bottom_frame, width=35, radius=20, text='', font=('San Francisco', 10), text_color='#000000', color='#d3d3d3', hover_color='#a0a0a0', image=self.plus_rectangle_img, compound='left', command=self.add_desk)
+        self.move_btn = RTkButton(self.bottom_frame, radius=20, text='Move', font=('San Francisco', 10), text_color='#000000', color='#d3d3d3', hover_color='#a0a0a0', image=None, command=self.move)
+        self.rotate_btn = RTkButton(self.bottom_frame, radius=20, text='Rotate', font=('San Francisco', 10), text_color=self.theme_manager.get_color("button_fg"), color=self.theme_manager.get_color("button_bg"), hover_color=self.theme_manager.get_color("button_hover"), image=None, command=self.rotate)
+        self.delete_btn = RTkButton(self.bottom_frame, radius=20, text='Delete', font=('San Francisco', 10), text_color=self.theme_manager.get_color("button_fg"), color=self.theme_manager.get_color("button_bg"), hover_color=self.theme_manager.get_color("button_hover"), image=None, command=self.delete)
         self.var = tk.DoubleVar()
         self.slider = tk.Scale(self.bottom_frame, from_=10, to=200, resolution=5, orient=tk.HORIZONTAL, variable = self.var, command=self.scale_grid)
 
@@ -156,26 +159,27 @@ class ClassroomPage:
         self.drag_manager.move_mode = is_move_mode
         self.drag_manager.rotate_mode = is_rotate_mode
         self.drag_manager.delete_mode = is_delete_mode
+
         if is_move_mode:
             self.move_btn.color = '#8d8d8d'
             self.move_btn.hover_color = '#5a5a5a'
         else:
-            self.move_btn.color = '#d3d3d3'
-            self.move_btn.hover_color = '#a0a0a0'
+            self.move_btn.color = self.theme_manager.get_color("button_bg")
+            self.move_btn.hover_color = self.theme_manager.get_color("button_hover")
 
         if is_rotate_mode:
             self.rotate_btn.color = '#8d8d8d'
             self.rotate_btn.hover_color = '#5a5a5a'
         else:
-            self.rotate_btn.color = '#d3d3d3'
-            self.rotate_btn.hover_color = '#a0a0a0'
+            self.rotate_btn.color = self.theme_manager.get_color("button_bg")
+            self.rotate_btn.hover_color = self.theme_manager.get_color("button_hover")
 
         if is_delete_mode:
             self.delete_btn.color = '#8d8d8d'
             self.delete_btn.hover_color = '#5a5a5a'
         else:
-            self.delete_btn.color = '#d3d3d3'
-            self.delete_btn.hover_color = '#a0a0a0'
+            self.delete_btn.color = self.theme_manager.get_color("button_bg")
+            self.delete_btn.hover_color = self.theme_manager.get_color("button_hover")
         
         self.move_btn.update_button_size()
         self.rotate_btn.update_button_size()

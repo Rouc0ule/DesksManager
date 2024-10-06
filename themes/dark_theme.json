@@ -1,0 +1,22 @@
+{
+    "background": "#1E1E1E",
+    "foreground": "#FFFFFF",
+    "button_bg": "#3C3C3C",
+    "button_fg": "#FFFFFF",
+    "button_hover": "#505050",
+    "entry_bg": "#2D2D2D",
+    "entry_fg": "#FFFFFF",
+    "canvas_bg": "#2C2C2C",
+    "grid_line": "#4CAF50",
+    "desk_fill": "#8B4513",
+    "student_fill": "#000080",
+    "student_outline": "#4169E1",
+    "text_color": "#FFFFFF",
+    "frame_bg": "#252525",
+    "label_bg": "#303030",
+    "label_fg": "#FFFFFF",
+    "listbox_bg": "#2D2D2D",
+    "listbox_fg": "#FFFFFF",
+    "scrollbar_bg": "#3C3C3C",
+    "scrollbar_fg": "#505050"
+}
